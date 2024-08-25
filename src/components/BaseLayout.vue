@@ -1,16 +1,20 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import IconSwagger from "@/assets/icons/swagger.svg";
-const drawer = ref(false);
-const searchInputWidth = ref("50");
-const searchAll = ref("");
+import { ref } from 'vue'
+import IconSwagger from '@/assets/icons/swagger.svg'
+import NavigationDrawer from './NavigationDrawer.vue'
+
+const drawer = ref(false)
+
+const searchAll = ref({
+  input: '',
+  width: '50',
+  placeholder: 'Search everything',
+})
 </script>
 
 <template>
   <v-app id="inspire">
-    <v-navigation-drawer>
-      <!--  -->
-    </v-navigation-drawer>
+    <navigation-drawer></navigation-drawer>
 
     <v-app-bar>
       <v-container class="mx-4" max-width="100%">
@@ -40,18 +44,18 @@ const searchAll = ref("");
               id="search-input"
               :loading="false"
               class="d-sm-inline-block"
-              :class="'w-' + searchInputWidth"
+              :class="'w-' + searchAll.width"
               append-inner-icon="mdi-magnify"
               density="compact"
-              label="Search"
-              placeholder="Search"
+              :label="searchAll.placeholder"
+              :placeholder="searchAll.placeholder"
               variant="outlined"
               hide-details
               single-line
               @update:focused="
-                searchInputWidth = $event || searchAll != '' ? '100' : '50'
+                searchAll.width = $event || searchAll.input != '' ? '100' : '50'
               "
-              v-model="searchAll"
+              v-model="searchAll.input"
             ></v-text-field>
           </v-col>
         </v-row>
