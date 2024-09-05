@@ -1,7 +1,7 @@
 export class AppInfo {
   constructor(
-    title: string = 'Base API',
-    description: string = 'WDC App API documentation',
-    version: string = 'v1'
+    public title: string = 'Base API',
+    public description: string = 'WDC App API documentation',
+    public version: string = 'v1'
   ) {}
 }

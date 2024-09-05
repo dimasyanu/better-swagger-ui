@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import IconSwagger from '@/assets/icons/swagger.svg'
-import NavigationDrawer from './NavigationDrawer.vue'
+import NavigationDrawer from '@/components/NavigationDrawer.vue'
 
 const drawer = ref(false)
 

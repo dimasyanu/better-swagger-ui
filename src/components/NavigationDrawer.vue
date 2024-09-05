@@ -1,9 +1,21 @@
 <script setup>
-import { ref } from 'vue'
+import { isNullOrEmpty } from '@/helpers/helper'
+import { SwaggerRoot } from '@/models/swagger-root.model'
+import { onMounted, ref } from 'vue'
 
 const navDrawerFilters = ref({
   input: '',
   placeholder: 'Search',
+})
+
+onMounted(async () => {
+  var swaggerJsonPath = localStorage.getItem('swagger_json_path')
+  if (isNullOrEmpty(swaggerJsonPath)) {
+    swaggerJsonPath = import.meta.env.VITE_SWAGGER_DEFAULT_PATH
+  }
+
+  var response = await fetch(swaggerJsonPath)
+  console.log(SwaggerRoot(await response.json()))
 })
 </script>
 
