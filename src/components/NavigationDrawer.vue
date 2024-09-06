@@ -1,6 +1,6 @@
-<script setup>
-import { isNullOrEmpty } from '@/helpers/helper'
-import { SwaggerRoot } from '@/models/swagger-root.model'
+<script setup lang="ts">
+import type { SwaggerRoot } from '@/models/swagger-root.model'
+import api from '@/plugins/api'
 import { onMounted, ref } from 'vue'
 
 const navDrawerFilters = ref({
@@ -9,21 +9,22 @@ const navDrawerFilters = ref({
 })
 
 onMounted(async () => {
-  var swaggerJsonPath = localStorage.getItem('swagger_json_path')
-  if (isNullOrEmpty(swaggerJsonPath)) {
-    swaggerJsonPath = import.meta.env.VITE_SWAGGER_DEFAULT_PATH
-  }
-
-  var response = await fetch(swaggerJsonPath)
-  console.log(SwaggerRoot(await response.json()))
+  await api
+    .getJson()
+    .then((res) => storeResponse(res))
+    .catch((err) => {})
+    .finally(() => {})
 })
+
+// Todo: store the response data
+const storeResponse = function (root: SwaggerRoot) {}
 </script>
 
 <template>
   <v-navigation-drawer>
     <v-list-item class="pt-3 pb-2">
       <v-text-field
-        id="search-input"
+        id="group-search-input"
         :loading="false"
         class="d-sm-inline-block w-100"
         append-inner-icon="mdi-magnify"
