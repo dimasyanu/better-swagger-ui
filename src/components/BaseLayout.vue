@@ -19,12 +19,6 @@ const drawer = ref(false)
 </template>
 
 <style lang="scss">
-#search-input-container .v-input {
-  transition: width 0.15s ease-out;
-  -webkit-transition: width 0.15s ease-out;
-  -moz-transition: width 0.15s ease-out;
-}
-
 .v-app-bar-title {
   .v-toolbar-title__placeholder {
     display: flex;

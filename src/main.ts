@@ -4,8 +4,12 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import vuetify from './plugins/vuetify'
 import api from './plugins/api'
+import { createPinia } from 'pinia'
 
-var app = createApp(App)
+const pinia = createPinia()
+
+createApp(App)
   .use(vuetify)
-app.provide('api', api)
-app.mount('#app')
+  .use(pinia)
+  .provide('api', api)
+  .mount('#app')
