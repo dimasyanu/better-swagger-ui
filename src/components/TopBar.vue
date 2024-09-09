@@ -23,7 +23,6 @@ onMounted(() => {
 })
 
 const changeTheme = function(val: any) {
-  console.log(val)
   store.changeThemeMode(val as boolean)
   isDarkMode.value = store.isDarkMode
 }

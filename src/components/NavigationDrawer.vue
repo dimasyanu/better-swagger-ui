@@ -1,23 +1,21 @@
 <script setup lang="ts">
-import type { SwaggerRoot } from '@/models/swagger-root.model'
 import api from '@/plugins/api'
+import { useGlobalStore } from '@/stores/global.store';
 import { onMounted, ref } from 'vue'
 
 const navDrawerFilters = ref({
   input: '',
   placeholder: 'Search',
 })
+const store = useGlobalStore()
 
 onMounted(async () => {
   await api
     .getJson()
-    .then((res) => storeResponse(res))
+    .then((res) => store.storeTags(res))
     .catch((err) => {})
     .finally(() => {})
 })
-
-// Todo: store the response data
-const storeResponse = function (root: SwaggerRoot) {}
 </script>
 
 <template>
@@ -41,5 +39,7 @@ const storeResponse = function (root: SwaggerRoot) {}
     <v-divider></v-divider>
 
     <v-list-item class="text-grey text-center"> No endpoints </v-list-item>
+    <v-list-item v-for="tag of store.tags" class="cursor-pointer hover:bg-grey-400">{{ tag }}</v-list-item>
+    <v-list-item></v-list-item>
   </v-navigation-drawer>
 </template>
