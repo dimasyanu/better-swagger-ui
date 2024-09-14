@@ -16,6 +16,10 @@ onMounted(async () => {
     .catch((err) => {})
     .finally(() => {})
 })
+
+const showSubMenu = (menu: string) => {
+  console.log(menu)
+}
 </script>
 
 <template>
@@ -46,9 +50,12 @@ onMounted(async () => {
         link
         v-for="(tag, i) of store.filteredTags"
         :key="i"
+        append-icon="mdi-chevron-right"
         class="cursor-pointer hover:bg-grey-400"
-        >{{ tag }}</v-list-item
+        @hover="showSubMenu(tag)"
       >
+        {{ tag }}
+      </v-list-item>
       <v-list-item></v-list-item>
     </v-list>
   </v-navigation-drawer>
