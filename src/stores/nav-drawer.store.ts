@@ -1,39 +1,19 @@
 import { isNullOrEmpty } from '@/helpers/helper'
-import type { SwaggerRoot } from '@/models/swagger-root.model'
 import { defineStore } from 'pinia'
+import { useGlobalStore } from './global.store'
+import { computed, ref } from 'vue'
 
-export const useNavDrawerStore = defineStore('navDrawer', {
-  state: () => ({
-    tags: [''],
-    tagSearch: '',
-  }),
-  getters: {
-    filteredTags(): string[] {
-      var keyword = this.tagSearch.trim().toLowerCase()
-      if (isNullOrEmpty(keyword)) return this.tags
-      return this.tags.filter((x) => x.toLowerCase().includes(keyword))
-    },
-  },
-  actions: {
-    storeTags(root: SwaggerRoot) {
-      let tags: string[] = []
-      for (let path in root.paths) {
-        let req = root.paths[path]
-        if (req.get) {
-          for (let tag of req.get.tags) {
-            if (tags.includes(tag)) continue
-            tags.push(tag)
-          }
-        }
+export const useNavDrawerStore = defineStore('navDrawer', () => {
+  const globalStore = useGlobalStore()
 
-        if (req.post) {
-          for (let tag of req.post.tags) {
-            if (tags.includes(tag)) continue
-            tags.push(tag)
-          }
-        }
-      }
-      this.tags = tags.sort()
-    },
-  },
+  const tagSearch = ref('')
+
+  const filteredTags = computed(() => {
+    var keyword = tagSearch.value.trim().toLowerCase()
+    let tags = globalStore.tagList
+    if (isNullOrEmpty(keyword)) return tags
+    return tags.filter((x) => x.toLowerCase().includes(keyword))
+  })
+
+  return { tagSearch, filteredTags }
 })

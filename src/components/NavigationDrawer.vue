@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import api from '@/plugins/api'
+import { useGlobalStore } from '@/stores/global.store';
 import { useNavDrawerStore } from '@/stores/nav-drawer.store'
 import { onMounted, ref } from 'vue'
 
@@ -7,12 +8,13 @@ const navDrawerFilters = ref({
   input: '',
   placeholder: 'Search',
 })
+const globalStore = useGlobalStore()
 const store = useNavDrawerStore()
 
 onMounted(async () => {
   await api
     .getJson()
-    .then((res) => store.storeTags(res))
+    .then((res) => globalStore.storeData(res))
     .catch((err) => {})
     .finally(() => {})
 })
@@ -23,8 +25,8 @@ const showSubMenu = (menu: string) => {
 </script>
 
 <template>
-  <v-navigation-drawer floating permanent>
-    <v-list density="compact" nav>
+  <v-navigation-drawer>
+    <v-list class="pb-5">
       <v-list-item class="pt-3 pb-2">
         <v-text-field
           id="group-search-input"
@@ -41,9 +43,9 @@ const showSubMenu = (menu: string) => {
         ></v-text-field>
       </v-list-item>
 
-      <v-divider></v-divider>
+      <v-divider class="py-2"></v-divider>
 
-      <v-list-item v-if="store.tags.length < 1" class="text-grey text-center">
+      <v-list-item v-if="store.filteredTags.length < 1" class="text-grey text-center">
         No endpoints
       </v-list-item>
       <v-list-item
@@ -51,12 +53,26 @@ const showSubMenu = (menu: string) => {
         v-for="(tag, i) of store.filteredTags"
         :key="i"
         append-icon="mdi-chevron-right"
-        class="cursor-pointer hover:bg-grey-400"
         @hover="showSubMenu(tag)"
       >
+        
         {{ tag }}
+        <v-menu :open-on-focus="false" activator="parent" open-delay="50" close-delay="50" open-on-hover submenu>
+          <v-list class="py-0">
+            <v-list-item link
+              v-for="(endpoint, j) in globalStore.apiData.find(x => x.tag === tag)!.endpoints"
+              :key="j">
+              {{ endpoint.path }}
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </v-list-item>
-      <v-list-item></v-list-item>
     </v-list>
   </v-navigation-drawer>
 </template>
+
+<style lang="scss">
+:deep(.v-list-item-title) {
+  font-size: 12px;
+}
+</style>
