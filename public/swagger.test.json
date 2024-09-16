@@ -8,6 +8,8 @@
     "paths": {
         "/Account/Register": {
             "post": {
+                "summary": "Register endpoint",
+                "description": "",
                 "tags": [
                     "Account"
                 ],

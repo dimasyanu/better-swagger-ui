@@ -6,6 +6,7 @@ import type { SwaggerPostRequestBody } from './swagger-post-request-body.model'
 export class PostRequest implements IRequestModel {
   constructor(
     public tags: string[] = [],
+    public summary: string = '',
     public requestBody: SwaggerPostRequestBody,
     public responses: Dictionary<DefaultResponse>
   ) {}

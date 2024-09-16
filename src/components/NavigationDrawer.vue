@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { getColorForMethod } from '@/constants/colors.enum'
+import { isNullOrEmpty } from '@/helpers/helper'
 import api from '@/plugins/api'
-import { useGlobalStore } from '@/stores/global.store';
+import { useGlobalStore } from '@/stores/global.store'
 import { useNavDrawerStore } from '@/stores/nav-drawer.store'
 import { onMounted, ref } from 'vue'
 
@@ -18,10 +20,6 @@ onMounted(async () => {
     .catch((err) => {})
     .finally(() => {})
 })
-
-const showSubMenu = (menu: string) => {
-  console.log(menu)
-}
 </script>
 
 <template>
@@ -45,7 +43,10 @@ const showSubMenu = (menu: string) => {
 
       <v-divider class="py-2"></v-divider>
 
-      <v-list-item v-if="store.filteredTags.length < 1" class="text-grey text-center">
+      <v-list-item
+        v-if="store.filteredTags.length < 1"
+        class="text-grey text-center"
+      >
         No endpoints
       </v-list-item>
       <v-list-item
@@ -53,16 +54,43 @@ const showSubMenu = (menu: string) => {
         v-for="(tag, i) of store.filteredTags"
         :key="i"
         append-icon="mdi-chevron-right"
-        @hover="showSubMenu(tag)"
       >
-        
         {{ tag }}
-        <v-menu :open-on-focus="false" activator="parent" open-delay="50" close-delay="50" open-on-hover submenu>
+        <v-menu
+          :open-on-focus="false"
+          activator="parent"
+          open-delay="50"
+          close-delay="50"
+          open-on-hover
+          submenu
+        >
           <v-list class="py-0">
-            <v-list-item link
+            <v-list-item
+              link
               v-for="(endpoint, j) in globalStore.apiData.find(x => x.tag === tag)!.endpoints"
-              :key="j">
-              {{ endpoint.path }}
+              :key="j"
+            >
+              <v-chip
+                class="method mr-3 my-2 text-uppercase"
+                label
+                size="small"
+                variant="flat"
+                :color="
+                  getColorForMethod(endpoint.method, globalStore.isDarkMode)
+                "
+              >
+                {{ endpoint.method }}
+              </v-chip>
+              <v-list-item-title class="inline">
+                {{ endpoint.path }}
+              </v-list-item-title>
+              <v-tooltip
+                v-if="!isNullOrEmpty(endpoint.request.summary)"
+                activator="parent"
+                location="end"
+              >
+                {{ endpoint.request.summary }}
+              </v-tooltip>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -70,9 +98,3 @@ const showSubMenu = (menu: string) => {
     </v-list>
   </v-navigation-drawer>
 </template>
-
-<style lang="scss">
-:deep(.v-list-item-title) {
-  font-size: 12px;
-}
-</style>

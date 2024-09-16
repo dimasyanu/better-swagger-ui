@@ -1,4 +1,3 @@
-import type { ResponseDto } from '@/models/responses/response-dto.mode'
 import type { SwaggerRoot } from '@/models/swagger-root.model'
 
 export default {

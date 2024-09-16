@@ -1,3 +1,4 @@
+import { ApiMethod } from '@/constants/api-method.enum'
 import { isNullOrEmpty } from '@/helpers/helper'
 import { ApiData, ApiEndpoint } from '@/models/api-data.model'
 import type { SwaggerRoot } from '@/models/swagger-root.model'
@@ -11,12 +12,12 @@ interface IGlobalState {
 export const useGlobalStore = defineStore('global', {
   state: (): IGlobalState => ({
     isDarkMode: false,
-    apiData: []
+    apiData: [],
   }),
   getters: {
     tagList(): string[] {
-      return this.apiData.map(x => x.tag)
-    }
+      return this.apiData.map((x) => x.tag)
+    },
   },
   actions: {
     toggleThemeMode() {
@@ -40,28 +41,32 @@ export const useGlobalStore = defineStore('global', {
         let req = root.paths[path]
         if (req.get) {
           for (let tag of req.get.tags) {
-            let currentApiData = this.apiData.find(x => x.tag === tag)
+            let currentApiData = this.apiData.find((x) => x.tag === tag)
             if (currentApiData === undefined || currentApiData === null) {
               currentApiData = new ApiData(tag, [])
               this.apiData.push(currentApiData)
             }
-            currentApiData.endpoints.push(new ApiEndpoint(path, req.get))
+            currentApiData.endpoints.push(
+              new ApiEndpoint(path, req.get, ApiMethod.GET)
+            )
           }
           continue
         }
 
         if (req.post) {
           for (let tag of req.post.tags) {
-            let currentApiData = this.apiData.find(x => x.tag === tag)
+            let currentApiData = this.apiData.find((x) => x.tag === tag)
             if (currentApiData === undefined || currentApiData === null) {
               currentApiData = new ApiData(tag, [])
               this.apiData.push(currentApiData)
             }
-            currentApiData.endpoints.push(new ApiEndpoint(path, req.post))
+            currentApiData.endpoints.push(
+              new ApiEndpoint(path, req.post, ApiMethod.POST)
+            )
           }
           continue
         }
       }
-    }
+    },
   },
 })
