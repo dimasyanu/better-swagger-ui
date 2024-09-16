@@ -18,3 +18,39 @@
     }
   }
 }
+
+.submenu-toggle {
+  transition: all .25s ease-in-out;
+  &.dark {
+    &:hover {
+      background-color: #404040;
+    }
+  }
+  &:hover {
+    background-color: #eaeaea;
+  }
+}
+
+.absolute {
+  position: absolute;
+}
+
+.h-full {
+  height: 100%;
+}
+
+.l-0 {
+  left: 0;
+}
+
+.r-0 {
+  right: 0;
+}
+
+.t-0 {
+  top: 0;
+}
+
+.b-0 {
+  bottom: 0;
+}
