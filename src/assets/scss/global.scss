@@ -1,3 +1,5 @@
+@use 'vuetify/settings';
+
 .inline {
   display: inline;
 }
@@ -53,4 +55,25 @@
 
 .b-0 {
   bottom: 0;
+}
+
+.v-theme--light {
+  .icon-hover-shadow {
+    filter: none;
+    transition: all .14s ease-in-out;
+    &:hover {
+      filter: drop-shadow(1px 2px 2px #828282);
+      color: #333;
+    }
+  }
+}
+
+.v-theme--dark {
+  .icon-hover-shadow {
+    filter: none;
+    transition: all .14s ease-in-out;
+    &:hover {
+      filter: drop-shadow(1px 2px 2px #eeeeee);
+    }
+  }
 }

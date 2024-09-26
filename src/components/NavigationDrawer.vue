@@ -4,12 +4,8 @@ import { isNullOrEmpty } from '@/helpers/helper'
 import api from '@/plugins/api'
 import { useGlobalStore } from '@/stores/global.store'
 import { useNavDrawerStore } from '@/stores/nav-drawer.store'
-import { onMounted, ref } from 'vue'
+import { onMounted } from 'vue'
 
-const navDrawerFilters = ref({
-  input: '',
-  placeholder: 'Search',
-})
 const globalStore = useGlobalStore()
 const store = useNavDrawerStore()
 
@@ -36,7 +32,7 @@ onMounted(async () => {
       <v-list-item v-if="store.filteredTags.length < 1" class="text-grey text-center">
         No endpoints
       </v-list-item>
-      <v-list-item link v-for="(tag, i) of store.filteredTags" :key="i">
+      <v-list-item link v-for="(tag, i) of store.filteredTags" :key="i" @click="globalStore.setCurrentTag(tag)">
         {{ tag }}
         <div class="submenu-toggle inline-block absolute h-full t-0 r-0 px-3 d-flex align-center cursor-default"
           :class="{ 'dark': globalStore.isDarkMode }">
@@ -44,7 +40,7 @@ onMounted(async () => {
           <v-menu :open-on-focus="false" activator="parent" open-delay="50" close-delay="50" open-on-hover submenu>
             <v-list class="py-0">
               <v-list-item link v-for="(endpoint, j) in globalStore.apiData.find(x => x.tag === tag)!.endpoints"
-                :key="j">
+                :key="j" @click="globalStore.selectEndpoint(tag, j)">
                 <v-chip class="method mr-3 my-2 text-uppercase" label size="small" variant="flat"
                   :color="getColorForMethod(endpoint.method, globalStore.isDarkMode)">
                   {{ endpoint.method }}

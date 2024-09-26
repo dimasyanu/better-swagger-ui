@@ -7,17 +7,27 @@ import { defineStore } from 'pinia'
 interface IGlobalState {
   isDarkMode: boolean
   apiData: ApiData[]
+  currentTag: string,
+  currentEndpointIndex: number | null
 }
 
 export const useGlobalStore = defineStore('global', {
   state: (): IGlobalState => ({
     isDarkMode: false,
     apiData: [],
+    currentTag: '',
+    currentEndpointIndex: null
   }),
   getters: {
     tagList(): string[] {
       return this.apiData.map((x) => x.tag)
     },
+    currentEndpoints(): ApiEndpoint[] {
+      if (isNullOrEmpty(this.currentTag) || this.apiData.findIndex(x => x.tag === this.currentTag) < 0)
+        return []
+
+      return this.apiData.find(x => x.tag === this.currentTag)?.endpoints!
+    }
   },
   actions: {
     toggleThemeMode() {
@@ -35,6 +45,13 @@ export const useGlobalStore = defineStore('global', {
       }
 
       this.changeThemeMode(isDarkMode!.toLowerCase() === 'true')
+    },
+    setCurrentTag(tag: string) {
+      this.currentTag = tag
+    },
+    selectEndpoint(tag: string, endpointIndex: number) {
+      this.currentTag = tag
+      this.currentEndpointIndex = endpointIndex
     },
     storeData(root: SwaggerRoot) {
       for (let path in root.paths) {
@@ -66,6 +83,10 @@ export const useGlobalStore = defineStore('global', {
           }
           continue
         }
+      }
+
+      if (isNullOrEmpty(this.currentTag) && this.apiData.length > 0) {
+        this.setCurrentTag(this.apiData[0].tag)
       }
     },
   },
