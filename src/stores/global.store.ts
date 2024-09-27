@@ -8,7 +8,8 @@ interface IGlobalState {
   isDarkMode: boolean
   apiData: ApiData[]
   currentTag: string,
-  currentEndpointIndex: number | null
+  currentEndpointIndex: number | null,
+  searchKeyword: string
 }
 
 export const useGlobalStore = defineStore('global', {
@@ -16,7 +17,8 @@ export const useGlobalStore = defineStore('global', {
     isDarkMode: false,
     apiData: [],
     currentTag: '',
-    currentEndpointIndex: null
+    currentEndpointIndex: null,
+    searchKeyword: ''
   }),
   getters: {
     tagList(): string[] {
@@ -45,6 +47,9 @@ export const useGlobalStore = defineStore('global', {
       }
 
       this.changeThemeMode(isDarkMode!.toLowerCase() === 'true')
+    },
+    clearSearch() {
+      this.searchKeyword = ''
     },
     setCurrentTag(tag: string) {
       this.currentTag = tag

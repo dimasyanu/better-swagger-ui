@@ -27,7 +27,7 @@ const getPanelClass = (method: string): string => {
     case 'delete': color = 'danger'; break;
     default: color = 'info'; break;
   }
-  return 'border-sm border-opacity-50 border-' + color
+  return 'border-md border-opacity-50 border-' + color
 }
 
 watch(currentEndpointIndex, (index) => {

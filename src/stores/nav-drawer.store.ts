@@ -15,5 +15,9 @@ export const useNavDrawerStore = defineStore('navDrawer', () => {
     return tags.filter((x) => x.toLowerCase().includes(keyword))
   })
 
-  return { tagSearch, filteredTags }
+  const clearSearch = () => {
+    tagSearch.value = ''
+  }
+
+  return { clearSearch, tagSearch, filteredTags }
 })

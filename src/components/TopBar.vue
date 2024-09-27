@@ -1,30 +1,53 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch, type Ref } from 'vue'
+import { getColorForMethod } from '@/constants/colors.enum'
 import IconSwagger from '@/assets/icons/swagger.svg'
-import { useGlobalStore } from '@/stores/global.store';
-import { useTheme } from 'vuetify';
+import { useGlobalStore } from '@/stores/global.store'
+import { isNullOrEmpty } from '@/helpers/helper'
+import { useTheme } from 'vuetify'
+import { computed } from 'vue'
+import type { ApiEndpoint } from '@/models/api-data.model'
 
 const theme = useTheme()
-const store = useGlobalStore()
+const globalStore = useGlobalStore()
 const isDarkMode = ref(false)
 
-const searchAll = ref({
-  input: '',
-  placeholder: 'Search everything',
+const searchAll: Ref<{ input: string | null; placeholder: string }> = ref({
+  input: null,
+  placeholder: 'Search everything (Min: 3 letters)',
 })
 
-watch(isDarkMode, isDark => {
+const items = computed((): ApiEndpoint[] => {
+  let endpoints = globalStore.apiData.flatMap((x) => x.endpoints)
+  if (
+    isNullOrEmpty(searchAll.value.input) ||
+    (searchAll.value.input?.length ?? 0) < 3
+  )
+    return []
+  return endpoints
+})
+
+const noDataText = computed((): string => {
+  if (
+    isNullOrEmpty(searchAll.value.input) ||
+    (searchAll.value.input?.length ?? 0) < 3
+  )
+    return 'Type at least 3 characters.'
+  return 'No matching result'
+})
+
+watch(isDarkMode, (isDark) => {
   theme.global.name.value = isDark ? 'dark' : 'light'
 })
 
 onMounted(() => {
-  store.initializeThemeMode()
-  isDarkMode.value = store.isDarkMode
+  globalStore.initializeThemeMode()
+  isDarkMode.value = globalStore.isDarkMode
 })
 
-const changeTheme = function(val: any) {
-  store.changeThemeMode(val as boolean)
-  isDarkMode.value = store.isDarkMode
+const changeTheme = function (val: any) {
+  globalStore.changeThemeMode(val as boolean)
+  isDarkMode.value = globalStore.isDarkMode
 }
 </script>
 
@@ -53,7 +76,7 @@ const changeTheme = function(val: any) {
           cols="12"
           sm="6"
         >
-          <v-text-field
+          <!-- <v-text-field
             id="global-search-input"
             :loading="false"
             class="d-sm-inline-block"
@@ -65,7 +88,53 @@ const changeTheme = function(val: any) {
             hide-details
             single-line
             v-model="searchAll.input"
-          ></v-text-field>
+            clearable
+            @click:clear="store.clearSearch()"
+          ></v-text-field> -->
+          <v-autocomplete
+            id="global-search-input"
+            :loading="false"
+            :items="items"
+            class="d-sm-inline-block"
+            append-inner-icon="mdi-magnify"
+            density="compact"
+            :label="searchAll.placeholder"
+            :placeholder="searchAll.placeholder"
+            :no-data-text="noDataText"
+            variant="outlined"
+            hide-details
+            single-line
+            menu
+            v-model="searchAll.input"
+            clearable
+            @click:clear="globalStore.clearSearch()"
+          >
+            <template v-slot:item="{ item }">
+              <v-list-item>
+                <v-chip
+                  class="method mr-3 my-2 text-uppercase"
+                  label
+                  size="small"
+                  variant="flat"
+                  :color="
+                    getColorForMethod(item.raw.method, globalStore.isDarkMode)
+                  "
+                >
+                  {{ item.raw.method }}
+                </v-chip>
+                <v-list-item-title class="inline">
+                  {{ item.raw.path }}
+                </v-list-item-title>
+                <v-tooltip
+                  v-if="!isNullOrEmpty(item.raw.request.summary)"
+                  activator="parent"
+                  location="end"
+                >
+                  {{ item.raw.request.summary }}
+                </v-tooltip>
+              </v-list-item>
+            </template>
+          </v-autocomplete>
         </v-col>
         <v-col cols="12" sm="3" class="text-right px-2">
           <div class="float-right d-flex align-center">
