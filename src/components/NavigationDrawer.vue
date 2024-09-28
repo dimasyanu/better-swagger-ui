@@ -38,6 +38,11 @@ onMounted(async () => {
           clearable
           @click:clear="store.clearSearch()"
         ></v-text-field>
+        <v-menu>
+          <v-list>
+            <v-list-item> Test </v-list-item>
+          </v-list>
+        </v-menu>
       </v-list-item>
 
       <v-divider></v-divider>

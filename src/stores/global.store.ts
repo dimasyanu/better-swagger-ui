@@ -53,6 +53,7 @@ export const useGlobalStore = defineStore('global', {
     },
     setCurrentTag(tag: string) {
       this.currentTag = tag
+      this.currentEndpointIndex = null
     },
     selectEndpoint(tag: string, endpointIndex: number) {
       this.currentTag = tag
