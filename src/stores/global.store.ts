@@ -59,6 +59,15 @@ export const useGlobalStore = defineStore('global', {
       this.currentTag = tag
       this.currentEndpointIndex = endpointIndex
     },
+    selectEndpointByPath(tag: string, path: string) {
+      this.currentTag = tag
+      let endpointIndex = this.currentEndpoints.findIndex(x => x.path === path)
+      if (endpointIndex < 0) {
+        this.currentEndpointIndex = null
+        return
+      }
+      this.currentEndpointIndex = endpointIndex
+    },
     storeData(root: SwaggerRoot) {
       for (let path in root.paths) {
         let req = root.paths[path]
