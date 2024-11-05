@@ -1,31 +1,36 @@
 <script setup lang="ts">
-import { getColorForMethod } from '@/constants/colors.enum';
+import { getColorForMethod } from '@/constants/colors.enum'
 import NavigationDrawer from '@/components/NavigationDrawer.vue'
-import TopBar from '@/components/TopBar.vue';
-import { useGlobalStore } from '@/stores/global.store';
-import { ref } from 'vue';
-import { watch } from 'vue';
-import { storeToRefs } from 'pinia';
-import { useGoTo } from 'vuetify';
+import TopBar from '@/components/TopBar.vue'
+import { useGlobalStore } from '@/stores/global.store'
+import { ref } from 'vue'
+import { watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useGoTo } from 'vuetify'
+import { useSnackbarStore } from '@/stores/snackbar.store'
 
 const goTo = useGoTo()
 const globalStore = useGlobalStore()
+const snackbarStore = useSnackbarStore()
 const { currentEndpointIndex } = storeToRefs(globalStore)
-const snackbar = ref({
-  text: "",
-  state: false
-})
 const copyUrl = (path: string): void => {
-  snackbar.value.text = '<b>Copied</b>: ' + path
-  snackbar.value.state = true
+  snackbarStore.show('<b>Copied</b>: ' + path)
 }
 const getPanelClass = (method: string): string => {
   let color = 'info'
   switch (method) {
-    case 'post': color = 'success'; break;
-    case 'put': color = 'warning'; break;
-    case 'delete': color = 'danger'; break;
-    default: color = 'info'; break;
+    case 'post':
+      color = 'success'
+      break
+    case 'put':
+      color = 'warning'
+      break
+    case 'delete':
+      color = 'danger'
+      break
+    default:
+      color = 'info'
+      break
   }
   return 'border-md border-opacity-50 border-' + color
 }
@@ -33,7 +38,7 @@ const getPanelClass = (method: string): string => {
 watch(currentEndpointIndex, (index) => {
   setTimeout(() => {
     goTo('#panel-' + index, { offset: -150 })
-  }, 200);
+  }, 200)
 })
 </script>
 
@@ -46,15 +51,26 @@ watch(currentEndpointIndex, (index) => {
     <v-main>
       <v-container>
         <v-expansion-panels v-model="currentEndpointIndex">
-          <v-expansion-panel v-for="(endpoint, i) in globalStore.currentEndpoints"
-            :class="i === globalStore.currentEndpointIndex ? getPanelClass(endpoint.method) : ''" :key="i">
+          <v-expansion-panel
+            v-for="(endpoint, i) in globalStore.currentEndpoints"
+            :class="i === globalStore.currentEndpointIndex ? getPanelClass(endpoint.method) : ''"
+            :key="i"
+          >
             <v-expansion-panel-title :id="'panel-' + i" class="px-4 py-1">
-              <v-chip class="method mr-3 my-2 text-uppercase" label size="small" variant="flat"
-                :color="getColorForMethod(endpoint.method, globalStore.isDarkMode)">
+              <v-chip
+                class="method mr-3 my-2 text-uppercase"
+                label
+                size="small"
+                variant="flat"
+                :color="getColorForMethod(endpoint.method, globalStore.isDarkMode)"
+              >
                 {{ endpoint.method }}
               </v-chip>
-              <v-icon icon="mdi-content-copy" class="ml-4 mr-2 icon-hover-shadow"
-                @click.stop="copyUrl(endpoint.path)"></v-icon>
+              <v-icon
+                icon="mdi-content-copy"
+                class="ml-4 mr-2 icon-hover-shadow"
+                @click.stop="copyUrl(endpoint.path)"
+              ></v-icon>
               {{ endpoint.path }}
             </v-expansion-panel-title>
             <v-expansion-panel-text>Lorem ipsum dolor</v-expansion-panel-text>
@@ -63,12 +79,10 @@ watch(currentEndpointIndex, (index) => {
       </v-container>
     </v-main>
 
-    <v-snackbar v-model="snackbar.state" :timeout="2000">
-      <span v-html="snackbar.text"></span>
+    <v-snackbar v-model="snackbarStore.active" :timeout="snackbarStore.timeout">
+      <span v-html="snackbarStore.text"></span>
       <template v-slot:actions>
-        <v-btn color="#fff" variant="text" @click="snackbar.state = false">
-          Close
-        </v-btn>
+        <v-btn color="#fff" variant="text" @click="snackbarStore.active = false">Close</v-btn>
       </template>
     </v-snackbar>
   </v-app>

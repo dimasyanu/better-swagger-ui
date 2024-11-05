@@ -5,11 +5,12 @@ import IconSwagger from '@/assets/icons/swagger.svg'
 import SourceModal from './partials/SourceModal.vue'
 import { useGlobalStore } from '@/stores/global.store'
 import { useTheme } from 'vuetify'
+import { useApiSourceStore } from '@/stores/api-source.store'
 
 const theme = useTheme()
 const globalStore = useGlobalStore()
+const sourceStore = useApiSourceStore()
 const isDarkMode = ref(false)
-const sourceModalState = ref(true)
 
 watch(isDarkMode, (isDark) => {
   theme.global.name.value = isDark ? 'dark' : 'light'
@@ -38,16 +39,26 @@ const changeTheme = function (val: any) {
           </v-app-bar-title>
         </v-col>
 
-        <!-- Source -->
+        <!-- Source & Authorization -->
         <v-col id="app-source-container" class="d-flex align-center" cols="12" sm="3">
-          <v-btn
-            variant="outlined"
-            class="text-none"
-            title="xmobile.yanoo.mi"
-            @click="sourceModalState = true"
-          >
-            Source: xmobile.yanoo.mi
-          </v-btn>
+          <v-btn-group variant="outlined" density="compact" divided>
+            <v-btn
+              variant="outlined"
+              class="text-none"
+              prepend-icon="mdi-web"
+              @click="sourceStore.openSourceModal()"
+            >
+              Source
+            </v-btn>
+            <v-btn
+              color="primary"
+              variant="outlined"
+              class="text-none"
+              title="Auth"
+              prepend-icon="mdi-lock-outline"
+              >Auth</v-btn
+            >
+          </v-btn-group>
         </v-col>
 
         <!-- Global search -->
@@ -82,6 +93,6 @@ const changeTheme = function (val: any) {
         </v-col>
       </v-row>
     </v-container>
-    <source-modal v-model="sourceModalState"></source-modal>
+    <source-modal></source-modal>
   </v-app-bar>
 </template>

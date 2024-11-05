@@ -38,21 +38,14 @@ onMounted(async () => {
           clearable
           @click:clear="store.clearSearch()"
         ></v-text-field>
-        <v-menu>
-          <v-list>
-            <v-list-item> Test </v-list-item>
-          </v-list>
-        </v-menu>
       </v-list-item>
 
       <v-divider></v-divider>
 
-      <v-list-item
-        v-if="store.filteredTags.length < 1"
-        class="text-grey text-center"
-      >
+      <v-list-item v-if="store.filteredTags.length < 1" class="text-grey text-center">
         No endpoints
       </v-list-item>
+
       <v-list-item
         link
         v-for="(tag, i) of store.filteredTags"
@@ -85,9 +78,7 @@ onMounted(async () => {
                   label
                   size="small"
                   variant="flat"
-                  :color="
-                    getColorForMethod(endpoint.method, globalStore.isDarkMode)
-                  "
+                  :color="getColorForMethod(endpoint.method, globalStore.isDarkMode)"
                 >
                   {{ endpoint.method }}
                 </v-chip>

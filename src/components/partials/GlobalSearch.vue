@@ -12,7 +12,7 @@ const items = computed(() => globalStore.apiData.flatMap((x) => x.endpoints))
 const search: Ref<string | undefined> = ref(undefined)
 const searchFinal: Ref<string | undefined> = ref(undefined)
 const searchMinChars = 2
-const searchPlaceholder = 'Search endpoints (Min: ' + searchMinChars + ' letters)'
+const searchPlaceholder = 'Search all (Min: ' + searchMinChars + ' letters)'
 const searchMenuState = ref(false)
 const searchFilter: any = (value: string, query: string | null, item?: Ref<ApiEndpoint | null>) => {
   if (

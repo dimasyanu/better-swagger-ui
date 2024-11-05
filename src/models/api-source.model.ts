@@ -7,5 +7,5 @@ export class ApiSource {
 }
 
 export class ApiSourceItem {
-  constructor(public id: string = '', public name: string = '', public url: string = '') {}
+  constructor(public id: string = '', public name: string = '', public jsonUrl: string = '') {}
 }

@@ -1,13 +1,11 @@
 import { ApiMethod } from '@/constants/api-method.enum'
 import { isNullOrEmpty } from '@/helpers/helper'
 import { ApiData, ApiEndpoint } from '@/models/api-data.model'
-import { ApiSource } from '@/models/api-source.model'
 import type { SwaggerRoot } from '@/models/swagger-root.model'
 import { defineStore } from 'pinia'
 
 interface IGlobalState {
   isDarkMode: boolean
-  source: ApiSource
   apiData: ApiData[]
   currentTag: string
   currentEndpointIndex: number | null
@@ -17,7 +15,6 @@ interface IGlobalState {
 export const useGlobalStore = defineStore('global', {
   state: (): IGlobalState => ({
     isDarkMode: false,
-    source: new ApiSource(),
     apiData: [],
     currentTag: '',
     currentEndpointIndex: null,
