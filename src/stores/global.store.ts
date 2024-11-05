@@ -1,35 +1,41 @@
 import { ApiMethod } from '@/constants/api-method.enum'
 import { isNullOrEmpty } from '@/helpers/helper'
 import { ApiData, ApiEndpoint } from '@/models/api-data.model'
+import { ApiSource } from '@/models/api-source.model'
 import type { SwaggerRoot } from '@/models/swagger-root.model'
 import { defineStore } from 'pinia'
 
 interface IGlobalState {
   isDarkMode: boolean
+  source: ApiSource
   apiData: ApiData[]
-  currentTag: string,
-  currentEndpointIndex: number | null,
+  currentTag: string
+  currentEndpointIndex: number | null
   searchKeyword: string
 }
 
 export const useGlobalStore = defineStore('global', {
   state: (): IGlobalState => ({
     isDarkMode: false,
+    source: new ApiSource(),
     apiData: [],
     currentTag: '',
     currentEndpointIndex: null,
-    searchKeyword: ''
+    searchKeyword: '',
   }),
   getters: {
     tagList(): string[] {
       return this.apiData.map((x) => x.tag)
     },
     currentEndpoints(): ApiEndpoint[] {
-      if (isNullOrEmpty(this.currentTag) || this.apiData.findIndex(x => x.tag === this.currentTag) < 0)
+      if (
+        isNullOrEmpty(this.currentTag) ||
+        this.apiData.findIndex((x) => x.tag === this.currentTag) < 0
+      )
         return []
 
-      return this.apiData.find(x => x.tag === this.currentTag)?.endpoints!
-    }
+      return this.apiData.find((x) => x.tag === this.currentTag)?.endpoints!
+    },
   },
   actions: {
     toggleThemeMode() {
@@ -61,7 +67,7 @@ export const useGlobalStore = defineStore('global', {
     },
     selectEndpointByPath(tag: string, path: string) {
       this.currentTag = tag
-      let endpointIndex = this.currentEndpoints.findIndex(x => x.path === path)
+      let endpointIndex = this.currentEndpoints.findIndex((x) => x.path === path)
       if (endpointIndex < 0) {
         this.currentEndpointIndex = null
         return
@@ -78,9 +84,7 @@ export const useGlobalStore = defineStore('global', {
               currentApiData = new ApiData(tag, [])
               this.apiData.push(currentApiData)
             }
-            currentApiData.endpoints.push(
-              new ApiEndpoint(path, req.get, ApiMethod.GET)
-            )
+            currentApiData.endpoints.push(new ApiEndpoint(path, req.get, ApiMethod.GET))
           }
           continue
         }
@@ -92,9 +96,7 @@ export const useGlobalStore = defineStore('global', {
               currentApiData = new ApiData(tag, [])
               this.apiData.push(currentApiData)
             }
-            currentApiData.endpoints.push(
-              new ApiEndpoint(path, req.post, ApiMethod.POST)
-            )
+            currentApiData.endpoints.push(new ApiEndpoint(path, req.post, ApiMethod.POST))
           }
           continue
         }

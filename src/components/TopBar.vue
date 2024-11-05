@@ -2,12 +2,14 @@
 import { onMounted, ref, watch, type Ref } from 'vue'
 import GlobalSearch from '@/components/partials/GlobalSearch.vue'
 import IconSwagger from '@/assets/icons/swagger.svg'
+import SourceModal from './partials/SourceModal.vue'
 import { useGlobalStore } from '@/stores/global.store'
 import { useTheme } from 'vuetify'
 
 const theme = useTheme()
 const globalStore = useGlobalStore()
 const isDarkMode = ref(false)
+const sourceModalState = ref(true)
 
 watch(isDarkMode, (isDark) => {
   theme.global.name.value = isDark ? 'dark' : 'light'
@@ -28,30 +30,33 @@ const changeTheme = function (val: any) {
   <v-app-bar>
     <v-container class="mx-4" max-width="100%">
       <v-row no-gutters>
-        <v-col
-          id="app-title-container"
-          class="d-flex align-center"
-          cols="12"
-          sm="3"
-        >
+        <!-- Logo/Title -->
+        <v-col id="app-title-container" class="d-flex align-center" cols="12" sm="3">
           <v-app-bar-title>
-            <v-img
-              class="d-sm-inline-block w-100 mr-2"
-              :src="IconSwagger"
-              max-width="42px"
-            ></v-img>
+            <v-img class="d-sm-inline-block w-100 mr-2" :src="IconSwagger" max-width="42px"></v-img>
             Better Swagger UI
           </v-app-bar-title>
         </v-col>
-        <v-col
-          id="search-input-container"
-          class="text-center d-flex align-center px-16"
-          cols="12"
-          sm="6"
-        >
+
+        <!-- Source -->
+        <v-col id="app-source-container" class="d-flex align-center" cols="12" sm="3">
+          <v-btn
+            variant="outlined"
+            class="text-none"
+            title="xmobile.yanoo.mi"
+            @click="sourceModalState = true"
+          >
+            Source: xmobile.yanoo.mi
+          </v-btn>
+        </v-col>
+
+        <!-- Global search -->
+        <v-col id="search-input-container" class="text-center d-flex align-center" cols="12" sm="4">
           <global-search></global-search>
         </v-col>
-        <v-col cols="12" sm="3" class="text-right px-2">
+
+        <!-- Theme mode -->
+        <v-col cols="12" sm="2" class="text-right px-2">
           <div class="float-right d-flex align-center">
             <v-icon
               class="cursor-pointer"
@@ -77,5 +82,6 @@ const changeTheme = function (val: any) {
         </v-col>
       </v-row>
     </v-container>
+    <source-modal v-model="sourceModalState"></source-modal>
   </v-app-bar>
 </template>

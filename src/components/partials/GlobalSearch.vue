@@ -79,7 +79,6 @@ onMounted(() => {
     v-model:menu="searchMenuState"
     v-model:model-value="search"
     v-model:search="search"
-    v-shortkey="['ctrl', '/']"
     density="compact"
     variant="outlined"
     :loading="false"
