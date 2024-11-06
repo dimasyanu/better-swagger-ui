@@ -46,6 +46,7 @@ const changeTheme = function (val: any) {
               variant="outlined"
               class="text-none"
               prepend-icon="mdi-web"
+              v-tooltip:bottom="'Source: ' + (sourceStore.currentSource ?? 'None')"
               @click="sourceStore.openSourceModal()"
             >
               Source

@@ -5,16 +5,15 @@ import { useSnackbarStore } from './snackbar.store'
 
 export const useApiSourceStore = defineStore('sourceStore', {
   state: (): ApiSource => ({
-    active: false,
+    active: true,
     currentId: '',
     sources: [],
   }),
   getters: {
-    currentSource(): string {
-      if (isNullOrEmpty(this.currentId)) return ''
+    currentSource(): string | undefined {
+      if (isNullOrEmpty(this.currentId)) return undefined
       let currentSource = this.sources.find((x) => x.id === this.currentId)
-      if (currentSource === null) return ''
-      return currentSource!.name
+      return currentSource?.name
     },
   },
   actions: {
