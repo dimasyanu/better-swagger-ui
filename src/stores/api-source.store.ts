@@ -1,11 +1,12 @@
 import { isNullOrEmpty } from '@/helpers/helper'
-import type { ApiSource } from '@/models/api-source.model'
+import { ApiSource } from '@/models/api-source.model'
 import { defineStore } from 'pinia'
 import { useSnackbarStore } from './snackbar.store'
+import { ApiSourceItem } from '../models/api-source.model'
 
 export const useApiSourceStore = defineStore('sourceStore', {
   state: (): ApiSource => ({
-    active: true,
+    active: false,
     currentId: '',
     sources: [],
   }),
@@ -23,6 +24,19 @@ export const useApiSourceStore = defineStore('sourceStore', {
       this.closeSourceModal()
 
       useSnackbarStore().show('The source is changed to ' + this.currentSource)
+    },
+    addSource(item: ApiSourceItem) {
+      this.sources.push(item)
+      this.saveToLocalStorage()
+    },
+    updateSource(item: ApiSourceItem) {
+      this.$patch((state) => {
+        let source = state.sources.find((x) => x.id === item.id)
+        if (source == null) return
+        source!.name = item.name
+        source!.jsonUrl = item.jsonUrl
+      })
+      this.saveToLocalStorage()
     },
     removeSource(id: string) {
       let source = this.sources.find((x) => x.id === id)
@@ -46,12 +60,16 @@ export const useApiSourceStore = defineStore('sourceStore', {
     saveToLocalStorage() {
       localStorage.setItem(
         'api_source',
-        JSON.stringify({
-          active: this.active,
-          currentId: this.currentId,
-          sources: this.sources,
-        })
+        JSON.stringify(new ApiSource(this.active, this.currentId, this.sources))
       )
+    },
+    loadFromLocalStorage() {
+      let strJson = localStorage.getItem('api_source')
+      if (isNullOrEmpty(strJson)) return
+      let deserialized = JSON.parse(strJson!) as ApiSource
+      this.sources = deserialized.sources
+      this.currentId = deserialized.currentId
+      console.log(this.active)
     },
   },
 })

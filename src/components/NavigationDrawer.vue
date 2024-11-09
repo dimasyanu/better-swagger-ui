@@ -8,14 +8,6 @@ import { onMounted } from 'vue'
 
 const globalStore = useGlobalStore()
 const store = useNavDrawerStore()
-
-onMounted(async () => {
-  await api
-    .getJson()
-    .then((res) => globalStore.storeData(res))
-    .catch((err) => {})
-    .finally(() => {})
-})
 </script>
 
 <template>
