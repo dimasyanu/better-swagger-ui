@@ -103,5 +103,11 @@ export const useGlobalStore = defineStore('global', {
         this.setCurrentTag(this.apiData[0].tag)
       }
     },
+    clearData() {
+      this.currentTag = ''
+      this.apiData = []
+      this.currentEndpointIndex = null
+      this.searchKeyword = ''
+    },
   },
 })

@@ -43,14 +43,16 @@ const clearForm = function () {
 
 const saveSource = async function () {
   v$.value.$reset()
-  var valid = await v$.value.$validate()
+  let valid = await v$.value.$validate()
   if (!valid) return
 
   if (isNullOrEmpty(formState.id))
     sourceStore.addSource(new ApiSourceItem(uuid(), formState.name, formState.jsonUrl))
   else {
-    sourceStore.updateSource(new ApiSourceItem(formState.id, formState.name, formState.jsonUrl))
+    const source = new ApiSourceItem(formState.id, formState.name, formState.jsonUrl)
+    sourceStore.updateSource(source)
     if (formState.id === sourceStore.currentId) {
+      sourceStore.fetchFromSource()
     }
   }
 
@@ -81,11 +83,7 @@ onMounted(() => {
   }
   const source = sourceStore.sources.find((x) => x.id === sourceStore.currentId)
   if (source == null) return
-  api
-    .get<SwaggerRoot>(source.jsonUrl)
-    .then((res) => globalStore.storeData(res))
-    .catch((err) => {})
-    .finally(() => {})
+  sourceStore.fetchFromSource()
 })
 
 const isEdit = computed(() => sourceMode.value === SourceMode.Edit)

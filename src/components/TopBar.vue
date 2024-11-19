@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch, type Ref } from 'vue'
+import { computed, onMounted, ref, watch, type Ref } from 'vue'
 import GlobalSearch from '@/components/partials/GlobalSearch.vue'
 import IconSwagger from '@/assets/icons/swagger.svg'
 import SourceModal from './partials/SourceModal.vue'
@@ -10,20 +10,15 @@ import { useApiSourceStore } from '@/stores/api-source.store'
 const theme = useTheme()
 const globalStore = useGlobalStore()
 const sourceStore = useApiSourceStore()
-const isDarkMode = ref(false)
+
+const isDarkMode = computed(() => globalStore.isDarkMode)
 
 watch(isDarkMode, (isDark) => {
   theme.global.name.value = isDark ? 'dark' : 'light'
 })
 
-onMounted(() => {
-  globalStore.initializeThemeMode()
-  isDarkMode.value = globalStore.isDarkMode
-})
-
 const changeTheme = function (val: any) {
   globalStore.changeThemeMode(val as boolean)
-  isDarkMode.value = globalStore.isDarkMode
 }
 </script>
 
@@ -73,22 +68,22 @@ const changeTheme = function (val: any) {
             <v-icon
               class="cursor-pointer"
               icon="mdi-white-balance-sunny"
-              :color="!isDarkMode ? 'yellow-darken-2' : 'grey-darken-1'"
-              @click="changeTheme(!isDarkMode)"
+              :color="globalStore.isDarkMode ? 'grey-darken-1' : 'yellow-darken-2'"
+              @click="changeTheme(!globalStore.isDarkMode)"
             ></v-icon>
             <v-switch
               class="mx-2"
               color="indigo"
               hide-details
               inset
-              :model-value="isDarkMode"
-              @click="changeTheme(!isDarkMode)"
+              :model-value="globalStore.isDarkMode"
+              @click="changeTheme(!globalStore.isDarkMode)"
             ></v-switch>
             <v-icon
               class="cursor-pointer"
               icon="mdi-weather-night"
-              :color="isDarkMode ? 'indigo-lighten-2' : 'grey-darken-1'"
-              @click="changeTheme(!isDarkMode)"
+              :color="globalStore.isDarkMode ? 'indigo-lighten-2' : 'grey-darken-1'"
+              @click="changeTheme(!globalStore.isDarkMode)"
             ></v-icon>
           </div>
         </v-col>

@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { getColorForMethod } from '@/constants/colors.enum'
 import { isNullOrEmpty } from '@/helpers/helper'
-import api from '@/plugins/api'
 import { useGlobalStore } from '@/stores/global.store'
 import { useNavDrawerStore } from '@/stores/nav-drawer.store'
-import { onMounted } from 'vue'
 
 const globalStore = useGlobalStore()
 const store = useNavDrawerStore()
