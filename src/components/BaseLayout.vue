@@ -2,6 +2,7 @@
 import { getColorForMethod } from '@/constants/colors.enum'
 import NavigationDrawer from '@/components/NavigationDrawer.vue'
 import TopBar from '@/components/TopBar.vue'
+import EndpointContent from './partials/EndpointContent.vue'
 import { useGlobalStore } from '@/stores/global.store'
 import { ref } from 'vue'
 import { watch } from 'vue'
@@ -73,7 +74,9 @@ watch(currentEndpointIndex, (index) => {
               ></v-icon>
               {{ endpoint.path }}
             </v-expansion-panel-title>
-            <v-expansion-panel-text>Lorem ipsum dolor</v-expansion-panel-text>
+            <v-expansion-panel-text>
+              <endpoint-content :endpoint="endpoint"></endpoint-content>
+            </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels>
       </v-container>
