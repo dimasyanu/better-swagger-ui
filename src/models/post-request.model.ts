@@ -8,6 +8,6 @@ export class PostRequest implements IRequestModel {
     public tags: string[] = [],
     public summary: string = '',
     public requestBody: SwaggerPostRequestBody,
-    public responses: Dictionary<DefaultResponse>
+    public responses: Dictionary<DefaultResponse>,
   ) {}
 }

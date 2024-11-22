@@ -9,6 +9,7 @@ import { watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useGoTo } from 'vuetify'
 import { useSnackbarStore } from '@/stores/snackbar.store'
+import type { ApiEndpoint } from '@/models/api-data.model'
 
 const goTo = useGoTo()
 const globalStore = useGlobalStore()
@@ -36,6 +37,14 @@ const getPanelClass = (method: string): string => {
   return 'border-md border-opacity-50 border-' + color
 }
 
+const trySend = (endpoint: ApiEndpoint) => {
+
+}
+
+const getHistories = (endpoint: ApiEndpoint) => {
+
+}
+
 watch(currentEndpointIndex, (index) => {
   setTimeout(() => {
     goTo('#panel-' + index, { offset: -150 })
@@ -57,7 +66,7 @@ watch(currentEndpointIndex, (index) => {
             :class="i === globalStore.currentEndpointIndex ? getPanelClass(endpoint.method) : ''"
             :key="i"
           >
-            <v-expansion-panel-title :id="'panel-' + i" class="px-4 py-1">
+            <v-expansion-panel-title :id="'panel-' + i" class="px-4 py-1 ms-none" :expand-icon="null" :collapse-icon="null">
               <v-chip
                 class="method mr-3 my-2 text-uppercase"
                 label
@@ -73,6 +82,10 @@ watch(currentEndpointIndex, (index) => {
                 @click.stop="copyUrl(endpoint.path)"
               ></v-icon>
               {{ endpoint.path }}
+              <v-btn-group density="compact" class="ms-auto">
+                <v-btn density="compact" size="small" variant="outlined" @click.stop="trySend(endpoint)">Try it out</v-btn>
+                <v-btn class="px-5" density="compact" icon="mdi-history" size="small" variant="outlined" @click.stop="getHistories(endpoint)"></v-btn>
+              </v-btn-group>
             </v-expansion-panel-title>
             <v-expansion-panel-text>
               <endpoint-content :endpoint="endpoint"></endpoint-content>
@@ -96,6 +109,11 @@ watch(currentEndpointIndex, (index) => {
   .v-toolbar-title__placeholder {
     display: flex;
     align-items: center;
+  }
+}
+.v-expansion-panel-title {
+  &> .v-expansion-panel-title__icon {
+    margin-inline-start: initial;
   }
 }
 </style>

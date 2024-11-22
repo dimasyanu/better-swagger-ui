@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { isNullOrEmpty } from '@/helpers/helper'
 import { ApiSourceItem } from '@/models/api-source.model'
-import type { SwaggerRoot } from '@/models/swagger-root.model'
-import api from '@/plugins/api'
 import { useApiSourceStore } from '@/stores/api-source.store'
 import { useGlobalStore } from '@/stores/global.store'
 import useVuelidate from '@vuelidate/core'
@@ -122,7 +120,7 @@ const isCreate = computed(() => sourceMode.value === SourceMode.Create)
                   v-model="formState.name"
                   label="Name"
                   variant="solo"
-                  density="compact"
+                  density="comfortable"
                   :error-messages="v$.name.$errors.map(e => e.$message as string)"
                   required
                   @blur="v$.name.$touch"
@@ -133,7 +131,7 @@ const isCreate = computed(() => sourceMode.value === SourceMode.Create)
                   v-model="formState.jsonUrl"
                   label="JSON Url"
                   variant="solo"
-                  density="compact"
+                  density="comfortable"
                   :error-messages="v$.jsonUrl.$errors.map(e => e.$message as string)"
                   required
                   @blur="v$.jsonUrl.$touch"

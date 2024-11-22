@@ -75,7 +75,7 @@ export const useApiSourceStore = defineStore('sourceStore', {
       api
         .get<SwaggerRoot>(this.currentSourceUrl!)
         .then((res) => globalStore.storeData(res))
-        .catch((err) => {})
+        .catch((err) => useSnackbarStore().show('Unable to fetch from URL: ' + this.currentSourceUrl, 3000))
         .finally(() => {})
     },
     saveToLocalStorage() {

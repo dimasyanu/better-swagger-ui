@@ -1,9 +1,10 @@
 import type { RequestParameterSchema } from "./request-parameter-schema.model";
 
-export class RequestParameter {
-  constructor(
-    public name: string = '',
-    public In: 'query' | 'path' = 'query',
-    public schema: RequestParameterSchema
-  ){}
+
+export interface RequestParameter {
+    name: string    
+    in: 'query' | 'path'
+    required: boolean
+    schema: RequestParameterSchema
+
 }
