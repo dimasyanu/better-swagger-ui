@@ -40,6 +40,7 @@ const store = useNavDrawerStore()
         link
         v-for="(tag, i) of store.filteredTags"
         :key="i"
+        :active="globalStore.currentTag === tag"
         @click="globalStore.setCurrentTag(tag)"
       >
         {{ tag }}
@@ -61,6 +62,7 @@ const store = useNavDrawerStore()
                 link
                 v-for="(endpoint, j) in globalStore.apiData.find(x => x.tag === tag)!.endpoints"
                 :key="j"
+                :active="globalStore.currentEndpointIndex === j"
                 @click="globalStore.selectEndpoint(tag, j)"
               >
                 <v-chip

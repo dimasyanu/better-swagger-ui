@@ -6,5 +6,5 @@ export interface RequestParameter {
     in: 'query' | 'path'
     required: boolean
     schema: RequestParameterSchema
-
+    description: string
 }
