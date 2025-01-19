@@ -2,11 +2,13 @@ import { ApiMethod } from '@/constants/api-method.enum'
 import { isNullOrEmpty } from '@/helpers/helper'
 import { ApiData, ApiEndpoint } from '@/models/api-data.model'
 import type { SwaggerRoot } from '@/models/swagger-root.model'
+import type { SwaggerSchema } from '@/models/swagger-schema.model'
 import { defineStore } from 'pinia'
 
 interface IGlobalState {
   isDarkMode: boolean
   apiData: ApiData[]
+  schemas: SwaggerSchema[]
   currentTag: string
   currentEndpointIndex: number | null
   searchKeyword: string
@@ -16,6 +18,7 @@ export const useGlobalStore = defineStore('global', {
   state: (): IGlobalState => ({
     isDarkMode: false,
     apiData: [],
+    schemas: [],
     currentTag: '',
     currentEndpointIndex: null,
     searchKeyword: '',
@@ -72,6 +75,7 @@ export const useGlobalStore = defineStore('global', {
       this.currentEndpointIndex = endpointIndex
     },
     storeData(root: SwaggerRoot) {
+      // Store paths
       for (let path in root.paths) {
         let req = root.paths[path]
         if (req.get) {
@@ -99,6 +103,15 @@ export const useGlobalStore = defineStore('global', {
         }
       }
 
+      // Store schemas
+      for (let schema in root.components.schemas) {
+        let schemaData = root.components.schemas[schema]
+        schemaData.name = schema
+        this.schemas.push(schemaData)
+        // this.schemas.push({ key: req })
+      }
+
+      // Set default tag
       if (isNullOrEmpty(this.currentTag) && this.apiData.length > 0) {
         this.setCurrentTag(this.apiData[0].tag)
       }

@@ -8,8 +8,8 @@ export class GetRequest implements IRequestModel {
   constructor(
     public tags: string[] = [],
     public summary: string = '',
-    public parameters: RequestParameter[] = [],
     public responses: Dictionary<DefaultResponse>,
+    public parameters: RequestParameter[] = [],
     public requestBody: IRequestBody
   ) {}
 }
