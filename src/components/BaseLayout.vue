@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getColorForMethod } from '@/constants/colors.enum'
+import { getColorForMethod as getBgColorForMethod } from '@/constants/colors.enum'
 import NavigationDrawer from '@/components/NavigationDrawer.vue'
 import TopBar from '@/components/TopBar.vue'
 import EndpointContent from './partials/EndpointContent.vue'
@@ -43,27 +43,52 @@ const { x, y } = useScroll(main)
 
 watch(currentEndpointIndex, (index) => {
   setTimeout(() => {
-    goTo('#panel-' + index, { offset: -150 })
+    const target = useTemplateRef<HTMLElement | null>('panel-' + index)
+    if (!target.value) return
+    target.value!.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    // goTo('#panel-' + index, { offset: -150 })
   }, 200)
 })
 </script>
 
 <template>
-  <div>
-    <navigation-drawer></navigation-drawer>
+  <div class="flex flex-row w-full h-full overflow-y-auto bg-base-200">
+    <NavigationDrawer />
 
-    <top-bar></top-bar>
+    <div class="flex flex-col flex-grow">
+      <TopBar />
 
-    <main ref="main">
-      <div class="container" v-for="(endpoint, i) in globalStore.currentEndpoints">
-        <div class="collapse collapse-arrow bg-base-100 border border-base-300">
-          <input type="radio" name="my-accordion-2" :checked="currentEndpointIndex == i" />
-          <div class="collapse-title font-semibold">How do I create an account?</div>
-          <div class="collapse-content text-sm">
-            Click the "Sign Up" button in the top right corner and follow the registration process.
+      <main ref="main" class="flex-grow py-5 h-full overflow-y-auto">
+        <div class="container flex flex-col gap-2 m-auto">
+          <div
+            v-for="(endpoint, i) in globalStore.currentEndpoints"
+            :key="i"
+            :ref="'panel-' + i"
+            class="collapse collapse-arrow bg-base-100 border border-base-300"
+          >
+            <input type="radio" name="my-accordion-2" :checked="currentEndpointIndex == i" />
+            <div class="collapse-title font-semibold flex flex-row items-center gap-2">
+              <div
+                class="badge uppercase"
+                :style="{
+                  color:
+                    'var(' +
+                    getBgColorForMethod(endpoint.method, globalStore.isDarkMode) +
+                    '-content)',
+                  backgroundColor:
+                    'var(' + getBgColorForMethod(endpoint.method, globalStore.isDarkMode) + ')',
+                }"
+              >
+                {{ endpoint.method }}
+              </div>
+              <span>{{ endpoint.path }}</span>
+            </div>
+            <div class="collapse-content text-sm">
+              Click the "Sign Up" button in the top right corner and follow the registration
+              process.
+            </div>
           </div>
-        </div>
-
+          <!--
         <v-expansion-panels v-model="currentEndpointIndex">
           <v-expansion-panel
             v-for="(endpoint, i) in globalStore.currentEndpoints"
@@ -114,15 +139,16 @@ watch(currentEndpointIndex, (index) => {
             </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels>
-      </div>
-    </main>
+ -->
+        </div>
+      </main>
+    </div>
 
-    <v-snackbar v-model="snackbarStore.active" :timeout="snackbarStore.timeout">
-      <span v-html="snackbarStore.text"></span>
-      <template v-slot:actions>
-        <v-btn color="#fff" variant="text" @click="snackbarStore.active = false">Close</v-btn>
-      </template>
-    </v-snackbar>
+    <div v-if="snackbarStore.active" class="toast">
+      <div class="alert alert-info">
+        <span>New message arrived.</span>
+      </div>
+    </div>
   </div>
 </template>
 

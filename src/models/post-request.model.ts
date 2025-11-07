@@ -8,8 +8,8 @@ export class PostRequest implements IRequestModel {
   constructor(
     public tags: string[] = [],
     public summary: string = '',
-    public requestBody: SwaggerPostRequestBody,
     public parameters: RequestParameter[],
-    public responses: Dictionary<DefaultResponse>,
+    public requestBody: SwaggerPostRequestBody,
+    public responses: Dictionary<DefaultResponse>
   ) {}
 }

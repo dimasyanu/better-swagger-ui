@@ -1,94 +1,98 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch, type Ref } from 'vue'
 import GlobalSearch from '@/components/partials/GlobalSearch.vue'
-import IconSwagger from '@/assets/icons/swagger.svg'
 import SourceModal from './partials/SourceModal.vue'
 import { useGlobalStore } from '@/stores/global.store'
-import { useTheme } from 'vuetify'
 import { useApiSourceStore } from '@/stores/api-source.store'
+import LinkIcon from './icons/LinkIcon.vue'
+import LockIcon from './icons/LockIcon.vue'
+import SwaggerIcon from './icons/SwaggerIcon.vue'
+import MenuIcon from './icons/MenuIcon.vue'
+import { useNavDrawerStore } from '@/stores/nav-drawer.store'
 
-const theme = useTheme()
 const globalStore = useGlobalStore()
 const sourceStore = useApiSourceStore()
+const navBarStore = useNavDrawerStore()
 
-const isDarkMode = computed(() => globalStore.isDarkMode)
+const toggleTheme = () => {
+  globalStore.toggleThemeMode()
 
-watch(isDarkMode, (isDark) => {
-  theme.global.name.value = isDark ? 'dark' : 'light'
-})
-
-const changeTheme = function (val: any) {
-  globalStore.changeThemeMode(val as boolean)
+  document.querySelector('#theme-toggle')?.setAttribute('aria-label', globalStore.theme)
 }
 </script>
 
 <template>
-  <v-app-bar>
-    <v-container class="mx-4" max-width="100%">
-      <v-row no-gutters>
-        <!-- Logo/Title -->
-        <v-col id="app-title-container" class="d-flex align-center" cols="12" sm="3">
-          <v-app-bar-title>
-            <v-img class="d-sm-inline-block w-100 mr-2" :src="IconSwagger" max-width="42px"></v-img>
-            Better Swagger UI
-          </v-app-bar-title>
-        </v-col>
+  <div class="navbar bg-base-100 shadow-sm">
+    <div class="flex flex-row w-full justify-between items-center">
+      <!-- Logo/Title -->
+      <div class="flex flex-row items-center gap-2 mr-4 px-2">
+        <div
+          class="tooltip tooltip-right mr-4"
+          data-tip="Toggle Navigation Drawer"
+          :class="{
+            'tooltip-bottom': globalStore.isNavDrawerOpen,
+            'tooltip-right': !globalStore.isNavDrawerOpen,
+          }"
+        >
+          <div class="btn btn-circle" @click="navBarStore.toggleNavDrawer">
+            <MenuIcon />
+          </div>
+        </div>
+        <SwaggerIcon width="48px" />
+        <h2>Better Swagger UI</h2>
+      </div>
 
-        <!-- Source & Authorization -->
-        <v-col id="app-source-container" class="d-flex align-center" cols="12" sm="3">
-          <v-btn-group variant="outlined" density="compact" divided>
-            <v-btn
-              variant="outlined"
-              class="text-none"
-              prepend-icon="mdi-web"
-              v-tooltip:bottom="'Source: ' + (sourceStore.currentSource ?? 'None')"
-              @click="sourceStore.openSourceModal()"
-            >
-              Source
-            </v-btn>
-            <v-btn
-              color="primary"
-              variant="outlined"
-              class="text-none"
-              title="Auth"
-              prepend-icon="mdi-lock-outline"
-              >Auth</v-btn
-            >
-          </v-btn-group>
-        </v-col>
+      <!-- Source & Authorization -->
+      <div class="flex flex-row gap-2 mr-4">
+        <div
+          class="tooltip tooltip-bottom"
+          :data-tip="'Source: ' + (sourceStore.currentSource ?? 'None')"
+        >
+          <div class="btn btn-soft btn-info" @click="sourceStore.openSourceModal">
+            <LinkIcon />
+            <span>Source</span>
+          </div>
+        </div>
+        <div class="btn btn-soft btn-success">
+          <LockIcon />
+          <span>Auth</span>
+        </div>
+      </div>
 
+      <div class="flex flex-row items-center gap-16 px-4">
         <!-- Global search -->
-        <v-col id="search-input-container" class="text-center d-flex align-center" cols="12" sm="4">
-          <global-search></global-search>
-        </v-col>
+        <div>
+          <GlobalSearch />
+        </div>
 
         <!-- Theme mode -->
-        <v-col cols="12" sm="2" class="text-right px-2">
-          <div class="float-right d-flex align-center">
-            <v-icon
-              class="cursor-pointer"
-              icon="mdi-white-balance-sunny"
-              :color="globalStore.isDarkMode ? 'grey-darken-1' : 'yellow-darken-2'"
-              @click="changeTheme(!globalStore.isDarkMode)"
-            ></v-icon>
-            <v-switch
-              class="mx-2"
-              color="indigo"
-              hide-details
-              inset
-              :model-value="globalStore.isDarkMode"
-              @click="changeTheme(!globalStore.isDarkMode)"
-            ></v-switch>
-            <v-icon
-              class="cursor-pointer"
-              icon="mdi-weather-night"
-              :color="globalStore.isDarkMode ? 'indigo-lighten-2' : 'grey-darken-1'"
-              @click="changeTheme(!globalStore.isDarkMode)"
-            ></v-icon>
-          </div>
-        </v-col>
-      </v-row>
-    </v-container>
-    <source-modal></source-modal>
-  </v-app-bar>
+        <div
+          id="theme-toggle"
+          class="theme-toggle cursor-pointer"
+          title="Toggles light & dark"
+          aria-label="auto"
+          aria-live="polite"
+          @click="toggleTheme"
+        >
+          <svg class="sun-and-moon" aria-hidden="true" width="32px" viewBox="0 0 24 24">
+            <mask class="moon" id="moon-mask">
+              <rect x="0" y="0" width="100%" height="100%" fill="white" />
+              <circle cx="24" cy="10" r="6" fill="black" />
+            </mask>
+            <circle class="sun" cx="12" cy="12" r="6" mask="url(#moon-mask)" fill="currentColor" />
+            <g class="sun-beams" stroke="currentColor">
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+  <SourceModal />
 </template>

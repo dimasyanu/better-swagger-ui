@@ -19,5 +19,9 @@ export const useNavDrawerStore = defineStore('navDrawer', () => {
     tagSearch.value = ''
   }
 
-  return { clearSearch, tagSearch, filteredTags }
+  const toggleNavDrawer = () => {
+    globalStore.isNavDrawerOpen = !globalStore.isNavDrawerOpen
+  }
+
+  return { toggleNavDrawer, clearSearch, tagSearch, filteredTags }
 })

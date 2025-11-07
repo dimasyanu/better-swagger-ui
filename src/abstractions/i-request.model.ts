@@ -6,7 +6,7 @@ import type { IRequestBody } from './i-request-body.model'
 export interface IRequestModel {
   tags: string[]
   summary: string
-  responses: Dictionary<DefaultResponse>
   parameters: RequestParameter[]
   requestBody: IRequestBody
+  responses: Dictionary<DefaultResponse>
 }

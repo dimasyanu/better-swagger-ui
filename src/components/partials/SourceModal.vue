@@ -6,7 +6,9 @@ import { useGlobalStore } from '@/stores/global.store'
 import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import { v4 as uuid } from 'uuid'
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
+import PencilIcon from '../icons/PencilIcon.vue'
+import TrashIcon from '../icons/TrashIcon.vue'
 
 class SourceForm {
   public id: string = ''
@@ -86,9 +88,78 @@ onMounted(() => {
 
 const isEdit = computed(() => sourceMode.value === SourceMode.Edit)
 const isCreate = computed(() => sourceMode.value === SourceMode.Create)
+watch(
+  () => sourceStore.active,
+  (newVal) => {
+    const modal = document.querySelector('#source-modal') as HTMLDialogElement
+    if (modal == null || modal.open) return
+
+    if (!newVal) {
+      sourceMode.value = SourceMode.Select
+      clearForm()
+      v$.value.$reset()
+      modal.close()
+      return
+    }
+    modal.showModal()
+  }
+)
 </script>
 
 <template>
+  <dialog id="source-modal" class="modal">
+    <div class="modal-box">
+      <form method="dialog">
+        <button
+          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+          @click="sourceStore.closeSourceModal"
+        >
+          ✕
+        </button>
+      </form>
+
+      <h3 class="text-xl valign-middle ml-4">
+        {{
+          sourceMode === SourceMode.Create
+            ? 'Create Source'
+            : sourceMode === SourceMode.Edit
+            ? 'Edit Source'
+            : 'Sources'
+        }}
+      </h3>
+
+      <div class="divider"></div>
+
+      <div v-if="isCreate || isEdit">
+        <div class="form-control w-full mb-4">
+          <label class="label">
+            <span class="label-text font-bold">Name</span>
+          </label>
+          <input
+            v-model="formState.name"
+            type="text"
+            placeholder="Source Name"
+            class="input input-bordered w-full"
+          />
+          <span v-if="v$.name.$error" class="text-sm text-red-600 mt-1">
+            {{ v$.name.$errors[0]?.$message }}
+          </span>
+        </div>
+      </div>
+      <div v-else class="flex flex-col gap-2">
+        <div v-for="(source, i) in sourceStore.sources" :key="i" class="flex flex-row">
+          <div class="btn flex-grow rounded-r-none">{{ source.name }}</div>
+          <div class="btn rounded-none" @click="editSource(source.id)">
+            <PencilIcon />
+          </div>
+          <div class="btn rounded-l-none" @click="sourceStore.removeSource(source.id)">
+            <TrashIcon />
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+  <!-- 
   <v-dialog
     v-model="sourceStore.active"
     max-width="480"
@@ -99,15 +170,6 @@ const isCreate = computed(() => sourceMode.value === SourceMode.Create)
         <v-icon v-if="isCreate || isEdit" @click="cancelForm()" title="Back" size="small">
           mdi-arrow-left
         </v-icon>
-        <span class="valign-middle ml-4">
-          {{
-            sourceMode === SourceMode.Create
-              ? 'Create Source'
-              : sourceMode === SourceMode.Edit
-              ? 'Edit Source'
-              : 'Sources'
-          }}
-        </span>
       </v-card-title>
       <v-divider></v-divider>
 
@@ -207,4 +269,5 @@ const isCreate = computed(() => sourceMode.value === SourceMode.Create)
       </v-card-actions>
     </v-card>
   </v-dialog>
+ -->
 </template>

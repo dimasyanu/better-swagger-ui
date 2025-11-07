@@ -3,12 +3,45 @@ import { getColorForMethod } from '@/constants/colors.enum'
 import { isNullOrEmpty } from '@/helpers/helper'
 import { useGlobalStore } from '@/stores/global.store'
 import { useNavDrawerStore } from '@/stores/nav-drawer.store'
+import ChevronRightIcon from './icons/ChevronRightIcon.vue'
 
 const globalStore = useGlobalStore()
 const store = useNavDrawerStore()
 </script>
 
 <template>
+  <div class="bg-base-100 py-3 shadow-md h-full" :class="{ hidden: !globalStore.isNavDrawerOpen }">
+    <div class="px-4">
+      <input type="text" placeholder="Filter.." class="input" />
+    </div>
+
+    <div class="divider my-2"></div>
+
+    <div v-if="store.filteredTags.length < 1" class="text-center text-secondary my-6">
+      No endpoints
+    </div>
+
+    <ul
+      class="menu h-[88%] overflow-auto flex flex-column flex-nowrap bg-base-100 rounded-box w-64 px-4"
+    >
+      <li
+        v-for="(tag, i) of store.filteredTags"
+        :key="i"
+        :class="{ active: globalStore.currentTag === tag }"
+        @click="globalStore.setCurrentTag(tag)"
+      >
+        <div class="flex flex-row justify-between p-0">
+          <a class="px-3">{{ tag }}</a>
+          <div
+            class="btn btn-sm px-2 rounded-l-none border-0 bg-transparent opacity-20 hover:opacity-75 transition-all duration-200"
+          >
+            <ChevronRightIcon class="" />
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <!--  
   <v-navigation-drawer>
     <v-list class="pb-5">
       <v-list-item class="pb-2">
@@ -91,4 +124,43 @@ const store = useNavDrawerStore()
       </v-list-item>
     </v-list>
   </v-navigation-drawer>
-</template>
+--></template>
+
+<style lang="scss" scoped>
+.menu li:hover btn,
+.menu li .btn:hover {
+  background-color: color-mix(in oklab, var(--color-base-content) 10%, var(--color-base-100));
+}
+
+.menu {
+  li {
+    .btn {
+      opacity: 0;
+    }
+
+    &:hover {
+      & > div {
+        .btn {
+          opacity: 0.5;
+
+          &:hover {
+            opacity: 0.75;
+          }
+        }
+      }
+    }
+
+    &.active {
+      & > div {
+        color: var(--menu-active-fg);
+        background-color: var(--menu-active-bg);
+
+        .btn {
+          color: var(--menu-active-fg);
+          background-color: var(--menu-active-bg);
+        }
+      }
+    }
+  }
+}
+</style>

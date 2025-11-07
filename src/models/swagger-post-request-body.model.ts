@@ -1,6 +1,5 @@
-import type { Dictionary } from './dictionary.model'
-import type { SwaggerPostRequestBodyContent } from './swagger-post-request-body-content.model'
+import type { IRequestBodySchema } from '@/abstractions/i-request-body-schema.model'
 
 export class SwaggerPostRequestBody {
-  constructor(public content: Dictionary<SwaggerPostRequestBodyContent>) {}
+  constructor(public content: { [name: string]: { schema: IRequestBodySchema } }) {}
 }

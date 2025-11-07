@@ -1,17 +1,22 @@
 <script lang="ts" setup>
 import { ApiEndpoint } from '@/models/api-data.model'
-import { Dictionary } from '@/models/dictionary.model';
-import { SwaggerSchemaProperty } from '@/models/swagger-schema-property.model';
-import { useGlobalStore } from '@/stores/global.store';
+import { Dictionary } from '@/models/dictionary.model'
+import { SwaggerSchemaProperty } from '@/models/swagger-schema-property.model'
+import { useGlobalStore } from '@/stores/global.store'
 
 const globalStore = useGlobalStore()
 
-const getSchemaProperties = function(schemaPath: String | undefined): Dictionary<SwaggerSchemaProperty> | undefined {
+const getSchemaProperties = function (
+  schemaPath: String | undefined
+): Dictionary<SwaggerSchemaProperty> | undefined {
   if (schemaPath === undefined) return new Dictionary<SwaggerSchemaProperty>()
   let segments = schemaPath.split('/')
   let schemaName = segments[segments.length - 1]
-  let schema = globalStore.schemas.find(x => x.name == schemaName)
-  for (let prop in schema?.properties) schema.properties[prop].name = prop
+  let schema = globalStore.schemas.find((x) => x.name == schemaName)
+  for (let prop in schema?.properties) {
+    if (!schema?.properties.hasOwnProperty(prop)) continue
+    schema.properties[prop]!.name = prop
+  }
   return schema?.properties
 }
 
@@ -33,10 +38,15 @@ defineProps({
           </thead>
           <tbody>
             <template v-if="endpoint?.request.requestBody?.content">
-              <tr v-for="property in getSchemaProperties(endpoint?.request.requestBody?.content['application/json']?.schema.$ref)">
+              <tr
+                v-for="property in getSchemaProperties(
+                  endpoint?.request.requestBody?.content['application/json']?.schema.$ref
+                )"
+              >
                 <td class="py-3">
                   {{ property.name }}
-                  <span v-if="!property.nullable" class="text-red">*<sup>required</sup></span>:
+                  <span v-if="!property.nullable" class="text-red">*<sup>required</sup></span
+                  >:
                   <span>
                     {{ property.type }}{{ property.format ? `(${property.format})` : '' }}
                   </span>
@@ -46,10 +56,15 @@ defineProps({
               </tr>
             </template>
             <template v-if="endpoint?.request.requestBody?.content">
-              <tr v-for="(property, k) in endpoint?.request.requestBody?.content['multipart/form-data']?.schema.properties">
+              <tr
+                v-for="(property, k) in getSchemaProperties(
+                  endpoint?.request.requestBody?.content['multipart/form-data']?.schema.$ref
+                )"
+              >
                 <td class="py-3">
                   {{ k }}
-                  <span v-if="!property.nullable" class="text-red">*<sup>required</sup></span>:
+                  <span v-if="!property.nullable" class="text-red">*<sup>required</sup></span
+                  >:
                   <span>
                     {{ property.type }}{{ property.format ? `(${property.format})` : '' }}
                   </span>
@@ -61,7 +76,8 @@ defineProps({
             <tr v-for="parameter in endpoint?.request.parameters">
               <td class="py-3">
                 {{ parameter.name }}
-                <span v-if="parameter.required" class="text-red">*<sup>required</sup></span>:
+                <span v-if="parameter.required" class="text-red">*<sup>required</sup></span
+                >:
                 <span
                   >{{ parameter.schema.type
                   }}{{ parameter.schema.format ? `(${parameter.schema.format})` : '' }}</span

@@ -5,25 +5,33 @@ import type { SwaggerRoot } from '@/models/swagger-root.model'
 import type { SwaggerSchema } from '@/models/swagger-schema.model'
 import { defineStore } from 'pinia'
 
+const lightTheme = 'corporate'
+const darkTheme = 'dim'
+
 interface IGlobalState {
-  isDarkMode: boolean
+  theme: string
   apiData: ApiData[]
   schemas: SwaggerSchema[]
   currentTag: string
   currentEndpointIndex: number | null
+  isNavDrawerOpen: boolean
   searchKeyword: string
 }
 
 export const useGlobalStore = defineStore('global', {
   state: (): IGlobalState => ({
-    isDarkMode: false,
+    theme: lightTheme,
     apiData: [],
     schemas: [],
     currentTag: '',
     currentEndpointIndex: null,
+    isNavDrawerOpen: true,
     searchKeyword: '',
   }),
   getters: {
+    isDarkMode(): boolean {
+      return this.theme === darkTheme
+    },
     tagList(): string[] {
       return this.apiData.map((x) => x.tag)
     },
@@ -39,20 +47,33 @@ export const useGlobalStore = defineStore('global', {
   },
   actions: {
     toggleThemeMode() {
-      this.changeThemeMode(!this.isDarkMode)
+      if (this.theme === lightTheme) {
+        this.changeThemeMode(darkTheme)
+        return
+      }
+      this.changeThemeMode(lightTheme)
     },
-    changeThemeMode(state: boolean = false) {
-      localStorage.setItem('is_dark_mode', state.toString())
-      this.isDarkMode = state
+    changeThemeMode(t: string | null) {
+      const theme = t ?? lightTheme
+      localStorage.setItem('theme', theme)
+      this.theme = theme
+
+      const html = document.getElementsByTagName('html')[0]
+      if (!html || !html.dataset) return
+      if (!theme) {
+        html.dataset.theme = lightTheme
+        return
+      }
+      html.dataset.theme = theme
     },
     initializeThemeMode() {
-      let isDarkMode = localStorage.getItem('is_dark_mode')
-      if (isNullOrEmpty(isDarkMode)) {
-        this.changeThemeMode(false)
+      let theme = localStorage.getItem('theme')
+      if (isNullOrEmpty(theme)) {
+        this.changeThemeMode(lightTheme)
         return
       }
 
-      this.changeThemeMode(isDarkMode!.toLowerCase() === 'true')
+      this.changeThemeMode(theme)
     },
     clearSearch() {
       this.searchKeyword = ''
@@ -78,7 +99,7 @@ export const useGlobalStore = defineStore('global', {
       // Store paths
       for (let path in root.paths) {
         let req = root.paths[path]
-        if (req.get) {
+        if (req?.get) {
           for (let tag of req.get.tags) {
             let currentApiData = this.apiData.find((x) => x.tag === tag)
             if (currentApiData === undefined || currentApiData === null) {
@@ -90,7 +111,7 @@ export const useGlobalStore = defineStore('global', {
           continue
         }
 
-        if (req.post) {
+        if (req?.post) {
           for (let tag of req.post.tags) {
             let currentApiData = this.apiData.find((x) => x.tag === tag)
             if (currentApiData === undefined || currentApiData === null) {
@@ -106,6 +127,7 @@ export const useGlobalStore = defineStore('global', {
       // Store schemas
       for (let schema in root.components.schemas) {
         let schemaData = root.components.schemas[schema]
+        if (!schemaData) continue
         schemaData.name = schema
         this.schemas.push(schemaData)
         // this.schemas.push({ key: req })
@@ -113,7 +135,7 @@ export const useGlobalStore = defineStore('global', {
 
       // Set default tag
       if (isNullOrEmpty(this.currentTag) && this.apiData.length > 0) {
-        this.setCurrentTag(this.apiData[0].tag)
+        this.setCurrentTag(this.apiData[0]!.tag)
       }
     },
     clearData() {

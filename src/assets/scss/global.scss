@@ -1,4 +1,39 @@
-@use 'vuetify/settings';
+@use './theme.scss';
+
+html,
+body {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
+    Helvetica Neue, Vazirmatn, Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji,
+    Segoe UI Symbol, Noto Color Emoji;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Vazirmatn,
+    Courier New, monospace;
+  --default-font-family: var(--font-sans);
+  --default-mono-font-family: var(--font-mono);
+  --font-title: Outfit, Noto Sans JP, Noto Sans, Vazirmatn, sans-serif;
+
+  font-family: var(--default-font-family);
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 600;
+    font-family: var(--font-title);
+  }
+
+  h1 {
+    font-size: var(--text-5xl);
+  }
+  h2 {
+    font-size: var(--text-4xl);
+  }
+
+  #app {
+    height: 100vh;
+  }
+}
 
 .inline {
   display: inline;
@@ -22,7 +57,7 @@
 }
 
 .submenu-toggle {
-  transition: all .25s ease-in-out;
+  transition: all 0.25s ease-in-out;
   &.dark {
     &:hover {
       background-color: #404040;
@@ -64,7 +99,7 @@
 .v-theme--light {
   .icon-hover-shadow {
     filter: none;
-    transition: all .14s ease-in-out;
+    transition: all 0.14s ease-in-out;
     &:hover {
       filter: drop-shadow(1px 2px 2px #828282);
       color: #333;
@@ -75,7 +110,7 @@
 .v-theme--dark {
   .icon-hover-shadow {
     filter: none;
-    transition: all .14s ease-in-out;
+    transition: all 0.14s ease-in-out;
     &:hover {
       filter: drop-shadow(1px 2px 2px #eeeeee);
     }
