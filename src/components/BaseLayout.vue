@@ -4,14 +4,12 @@ import NavigationDrawer from '@/components/NavigationDrawer.vue'
 import TopBar from '@/components/TopBar.vue'
 import EndpointContent from './partials/EndpointContent.vue'
 import { useGlobalStore } from '@/stores/global.store'
-import { ref } from 'vue'
-import { watch } from 'vue'
+import { useTemplateRef, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useGoTo } from 'vuetify'
 import { useSnackbarStore } from '@/stores/snackbar.store'
 import type { ApiEndpoint } from '@/models/api-data.model'
+import { useScroll } from '@vueuse/core'
 
-const goTo = useGoTo()
 const globalStore = useGlobalStore()
 const snackbarStore = useSnackbarStore()
 const { currentEndpointIndex } = storeToRefs(globalStore)
@@ -37,13 +35,11 @@ const getPanelClass = (method: string): string => {
   return 'border-md border-opacity-50 border-' + color
 }
 
-const trySend = (endpoint: ApiEndpoint) => {
+const trySend = (endpoint: ApiEndpoint) => {}
+const getHistories = (endpoint: ApiEndpoint) => {}
 
-}
-
-const getHistories = (endpoint: ApiEndpoint) => {
-
-}
+const main = useTemplateRef<HTMLElement>('main')
+const { x, y } = useScroll(main)
 
 watch(currentEndpointIndex, (index) => {
   setTimeout(() => {
@@ -53,20 +49,33 @@ watch(currentEndpointIndex, (index) => {
 </script>
 
 <template>
-  <v-app id="inspire">
+  <div>
     <navigation-drawer></navigation-drawer>
 
     <top-bar></top-bar>
 
-    <v-main>
-      <v-container>
+    <main ref="main">
+      <div class="container" v-for="(endpoint, i) in globalStore.currentEndpoints">
+        <div class="collapse collapse-arrow bg-base-100 border border-base-300">
+          <input type="radio" name="my-accordion-2" :checked="currentEndpointIndex == i" />
+          <div class="collapse-title font-semibold">How do I create an account?</div>
+          <div class="collapse-content text-sm">
+            Click the "Sign Up" button in the top right corner and follow the registration process.
+          </div>
+        </div>
+
         <v-expansion-panels v-model="currentEndpointIndex">
           <v-expansion-panel
             v-for="(endpoint, i) in globalStore.currentEndpoints"
             :class="i === globalStore.currentEndpointIndex ? getPanelClass(endpoint.method) : ''"
             :key="i"
           >
-            <v-expansion-panel-title :id="'panel-' + i" class="px-4 py-1 ms-none" :expand-icon="null" :collapse-icon="null">
+            <v-expansion-panel-title
+              :id="'panel-' + i"
+              class="px-4 py-1 ms-none"
+              :expand-icon="undefined"
+              :collapse-icon="undefined"
+            >
               <v-chip
                 class="method mr-3 my-2 text-uppercase"
                 label
@@ -83,8 +92,21 @@ watch(currentEndpointIndex, (index) => {
               ></v-icon>
               {{ endpoint.path }}
               <v-btn-group density="compact" class="ms-auto">
-                <v-btn density="compact" size="small" variant="outlined" @click.stop="trySend(endpoint)">Try it out</v-btn>
-                <v-btn class="px-5" density="compact" icon="mdi-history" size="small" variant="outlined" @click.stop="getHistories(endpoint)"></v-btn>
+                <v-btn
+                  density="compact"
+                  size="small"
+                  variant="outlined"
+                  @click.stop="trySend(endpoint)"
+                  >Try it out</v-btn
+                >
+                <v-btn
+                  class="px-5"
+                  density="compact"
+                  icon="mdi-history"
+                  size="small"
+                  variant="outlined"
+                  @click.stop="getHistories(endpoint)"
+                ></v-btn>
               </v-btn-group>
             </v-expansion-panel-title>
             <v-expansion-panel-text>
@@ -92,8 +114,8 @@ watch(currentEndpointIndex, (index) => {
             </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels>
-      </v-container>
-    </v-main>
+      </div>
+    </main>
 
     <v-snackbar v-model="snackbarStore.active" :timeout="snackbarStore.timeout">
       <span v-html="snackbarStore.text"></span>
@@ -101,7 +123,7 @@ watch(currentEndpointIndex, (index) => {
         <v-btn color="#fff" variant="text" @click="snackbarStore.active = false">Close</v-btn>
       </template>
     </v-snackbar>
-  </v-app>
+  </div>
 </template>
 
 <style lang="scss">
@@ -111,8 +133,9 @@ watch(currentEndpointIndex, (index) => {
     align-items: center;
   }
 }
+
 .v-expansion-panel-title {
-  &> .v-expansion-panel-title__icon {
+  & > .v-expansion-panel-title__icon {
     margin-inline-start: initial;
   }
 }
