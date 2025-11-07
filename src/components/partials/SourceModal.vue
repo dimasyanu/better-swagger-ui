@@ -9,6 +9,7 @@ import { v4 as uuid } from 'uuid'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import PencilIcon from '../icons/PencilIcon.vue'
 import TrashIcon from '../icons/TrashIcon.vue'
+import ArrowLeftIcon from '../icons/ArrowLeftIcon.vue'
 
 class SourceForm {
   public id: string = ''
@@ -56,9 +57,12 @@ const saveSource = async function () {
     }
   }
 
-  clearForm()
-  v$.value.$reset()
-  sourceMode.value = SourceMode.Select
+  closeModal()
+}
+
+const selectSource = function (id: string) {
+  sourceStore.changeCurrentSource(id)
+  closeModal()
 }
 
 const editSource = function (id: string) {
@@ -72,6 +76,16 @@ const editSource = function (id: string) {
 const cancelForm = function () {
   v$.value.$reset()
   clearForm()
+  sourceMode.value = SourceMode.Select
+}
+
+const closeModal = function () {
+  clearForm()
+  v$.value.$reset()
+  const modal = document.querySelector('#source-modal') as HTMLDialogElement
+  if (modal == null || !modal.open) return
+  modal.close()
+  sourceStore.closeSourceModal()
   sourceMode.value = SourceMode.Select
 }
 
@@ -107,48 +121,73 @@ watch(
 </script>
 
 <template>
-  <dialog id="source-modal" class="modal">
+  <dialog id="source-modal" class="modal" :class="{ hidden: !sourceStore.active }">
     <div class="modal-box">
-      <form method="dialog">
-        <button
-          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-          @click="sourceStore.closeSourceModal"
-        >
-          ✕
-        </button>
-      </form>
+      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" @click="closeModal">
+        ✕
+      </button>
 
-      <h3 class="text-xl valign-middle ml-4">
-        {{
-          sourceMode === SourceMode.Create
-            ? 'Create Source'
-            : sourceMode === SourceMode.Edit
-            ? 'Edit Source'
-            : 'Sources'
-        }}
-      </h3>
+      <div class="flex flex-row gap-2 justify-start items-center">
+        <div v-if="isCreate || isEdit" class="cursor-pointer" @click="cancelForm">
+          <ArrowLeftIcon />
+        </div>
+        <h3 class="text-xl valign-middle ml-4">
+          {{
+            sourceMode === SourceMode.Create
+              ? 'Create Source'
+              : sourceMode === SourceMode.Edit
+              ? 'Edit Source'
+              : 'Sources'
+          }}
+        </h3>
+      </div>
 
       <div class="divider"></div>
 
       <div v-if="isCreate || isEdit">
         <div class="form-control w-full mb-4">
-          <label class="label">
-            <span class="label-text font-bold">Name</span>
-          </label>
-          <input
-            v-model="formState.name"
-            type="text"
-            placeholder="Source Name"
-            class="input input-bordered w-full"
-          />
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">Name</legend>
+            <input
+              v-model="formState.name"
+              type="text"
+              placeholder="Source Name"
+              class="input input-bordered w-full"
+            />
+          </fieldset>
           <span v-if="v$.name.$error" class="text-sm text-red-600 mt-1">
-            {{ v$.name.$errors[0]?.$message }}
+            <ul class="validator-hint">
+              <li v-for="(error, i) in v$.name.$errors" :key="i">{{ error.$message }}</li>
+            </ul>
           </span>
+
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend mt-4">JSON Url</legend>
+            <input
+              v-model="formState.jsonUrl"
+              type="text"
+              placeholder="https://example.com/api.json"
+              class="input input-bordered w-full"
+            />
+          </fieldset>
+          <span v-if="v$.jsonUrl.$error" class="text-sm text-red-600 mt-1">
+            <ul class="validator-hint">
+              <li v-for="(error, i) in v$.jsonUrl.$errors" :key="i">{{ error.$message }}</li>
+            </ul>
+          </span>
+
+          <div class="mt-6 w-full flex justify-center">
+            <div class="btn btn-sm mr-4" @click="cancelForm">Cancel</div>
+            <div class="btn btn-sm btn-primary" @click="saveSource">Save Source</div>
+          </div>
         </div>
       </div>
+
       <div v-else class="flex flex-col gap-2">
         <div v-for="(source, i) in sourceStore.sources" :key="i" class="flex flex-row">
-          <div class="btn flex-grow rounded-r-none">{{ source.name }}</div>
+          <div class="btn flex-grow rounded-r-none" @click="selectSource(source.id)">
+            {{ source.name }}
+          </div>
           <div class="btn rounded-none" @click="editSource(source.id)">
             <PencilIcon />
           </div>
@@ -156,8 +195,14 @@ watch(
             <TrashIcon />
           </div>
         </div>
+
+        <div class="mt-3 w-full flex justify-center">
+          <div class="btn btn-sm" @click="sourceMode = SourceMode.Create">Add a new source</div>
+        </div>
       </div>
     </div>
+
+    <label class="modal-backdrop" for="source-modal" @click="closeModal"></label>
   </dialog>
   <!-- 
   <v-dialog

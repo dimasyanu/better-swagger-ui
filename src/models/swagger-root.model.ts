@@ -7,7 +7,7 @@ export class SwaggerRoot {
   public components: SwaggerComponents = new SwaggerComponents()
   public openapi: string = '0.0'
   public info: SwaggerAppInfo = new SwaggerAppInfo()
-  public paths: Dictionary<RestApiRequests> | null = null
+  public paths: { [path: string]: RestApiRequests } | null = null
 
-  constructor() {}
+  constructor() { }
 }

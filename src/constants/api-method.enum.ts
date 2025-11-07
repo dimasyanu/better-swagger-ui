@@ -5,3 +5,5 @@ export enum ApiMethod {
   PUT = 'put',
   DELETE = 'delete',
 }
+
+export type ApiMethodType = ApiMethod.GET | ApiMethod.POST | ApiMethod.PATCH | ApiMethod.PUT | ApiMethod.DELETE | undefined

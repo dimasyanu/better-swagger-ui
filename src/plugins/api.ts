@@ -16,6 +16,7 @@ export default {
       import.meta.env.VITE_SWAGGER_DEFAULT_PATH ??
       '/swagger.test.json'
 
-    return this.get<SwaggerRoot>(swaggerJsonPath)
+    const parsed = this.get<SwaggerRoot>(swaggerJsonPath)
+    return parsed
   },
 }

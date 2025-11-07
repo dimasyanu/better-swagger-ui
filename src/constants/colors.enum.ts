@@ -1,11 +1,11 @@
-import { ApiMethod } from './api-method.enum'
+import { ApiMethod, type ApiMethodType } from './api-method.enum'
 
 enum MethodColorLightMode {
   GET = '--color-info',
   POST = '--color-success',
-  PATCH = 'amber-lighten-1',
-  PUT = 'amber-lighten-1',
-  DELETE = 'red-lighten-1',
+  PATCH = '--color-warning',
+  PUT = '--color-warning',
+  DELETE = '--color-error',
 }
 
 enum MethodColorDarkMode {
@@ -16,7 +16,7 @@ enum MethodColorDarkMode {
   DELETE = 'red',
 }
 
-export const getColorForMethod = function (method: string, isDarkMode: boolean) {
+export const getColorForMethod = function (method: ApiMethodType, isDarkMode: boolean) {
   if (!isDarkMode) {
     if (method === ApiMethod.POST) return MethodColorLightMode.POST
     if (method === ApiMethod.PUT) return MethodColorLightMode.PUT

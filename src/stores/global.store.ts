@@ -1,4 +1,5 @@
-import { ApiMethod } from '@/constants/api-method.enum'
+import type { IRequestModel } from '@/abstractions/i-request.model'
+import { ApiMethod, type ApiMethodType } from '@/constants/api-method.enum'
 import { isNullOrEmpty } from '@/helpers/helper'
 import { ApiData, ApiEndpoint } from '@/models/api-data.model'
 import type { SwaggerRoot } from '@/models/swagger-root.model'
@@ -96,32 +97,25 @@ export const useGlobalStore = defineStore('global', {
       this.currentEndpointIndex = endpointIndex
     },
     storeData(root: SwaggerRoot) {
+      const registerPath = (path: string, method: ApiMethodType, reqModel: IRequestModel): void => {
+        for (let tag of reqModel.tags) {
+          let currentApiData = this.apiData.find((x) => x.tag === tag)
+          if (currentApiData === undefined || currentApiData === null) {
+            currentApiData = new ApiData(tag, [])
+            this.apiData.push(currentApiData)
+          }
+          currentApiData.endpoints.push(new ApiEndpoint(path, reqModel, method))
+        }
+      }
+
       // Store paths
       for (let path in root.paths) {
         let req = root.paths[path]
-        if (req?.get) {
-          for (let tag of req.get.tags) {
-            let currentApiData = this.apiData.find((x) => x.tag === tag)
-            if (currentApiData === undefined || currentApiData === null) {
-              currentApiData = new ApiData(tag, [])
-              this.apiData.push(currentApiData)
-            }
-            currentApiData.endpoints.push(new ApiEndpoint(path, req.get, ApiMethod.GET))
-          }
-          continue
-        }
-
-        if (req?.post) {
-          for (let tag of req.post.tags) {
-            let currentApiData = this.apiData.find((x) => x.tag === tag)
-            if (currentApiData === undefined || currentApiData === null) {
-              currentApiData = new ApiData(tag, [])
-              this.apiData.push(currentApiData)
-            }
-            currentApiData.endpoints.push(new ApiEndpoint(path, req.post, ApiMethod.POST))
-          }
-          continue
-        }
+        if (req?.get) registerPath(path, ApiMethod.GET, req.get)
+        if (req?.post) registerPath(path, ApiMethod.POST, req.post)
+        if (req?.patch) registerPath(path, ApiMethod.PATCH, req.patch)
+        if (req?.put) registerPath(path, ApiMethod.PUT, req.put)
+        if (req?.delete) registerPath(path, ApiMethod.DELETE, req.delete)
       }
 
       // Store schemas
