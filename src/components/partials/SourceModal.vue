@@ -61,8 +61,8 @@ const saveSource = async function () {
 }
 
 const selectSource = function (id: string) {
-  sourceStore.changeCurrentSource(id)
   closeModal()
+  sourceStore.changeCurrentSource(id)
 }
 
 const editSource = function (id: string) {
@@ -183,8 +183,13 @@ watch(
         </div>
       </div>
 
-      <div v-else class="flex flex-col gap-2">
-        <div v-for="(source, i) in sourceStore.sources" :key="i" class="flex flex-row">
+      <div v-else id="source-list" class="flex flex-col gap-2">
+        <div
+          v-for="(source, i) in sourceStore.sources"
+          :key="i"
+          class="flex flex-row"
+          :class="{ active: source.id === sourceStore.currentId }"
+        >
           <div class="btn flex-grow rounded-r-none" @click="selectSource(source.id)">
             {{ source.name }}
           </div>
@@ -316,3 +321,17 @@ watch(
   </v-dialog>
  -->
 </template>
+
+<style lang="scss" scoped>
+#source-list .active .btn {
+  background-color: var(--color-secondary);
+  color: var(--color-secondary-content);
+  border: none;
+
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    filter: brightness(0.9);
+  }
+}
+</style>

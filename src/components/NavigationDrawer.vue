@@ -10,7 +10,11 @@ const store = useNavDrawerStore()
 </script>
 
 <template>
-  <div class="bg-base-100 py-3 shadow-md h-full" :class="{ hidden: !globalStore.isNavDrawerOpen }">
+  <div
+    id="sidenav"
+    class="bg-base-100 py-3 shadow-md h-full relative z-2"
+    :class="{ hidden: !globalStore.isNavDrawerOpen }"
+  >
     <div class="px-4">
       <input type="text" placeholder="Filter.." class="input" />
     </div>
@@ -33,9 +37,15 @@ const store = useNavDrawerStore()
         <div class="flex flex-row justify-between p-0">
           <a class="px-3">{{ tag }}</a>
           <div
-            class="btn btn-sm px-2 rounded-l-none border-0 bg-transparent opacity-20 hover:opacity-75 transition-all duration-200"
+            class="menu-toggle-icon btn btn-sm relative px-2 rounded-l-none border-0 bg-transparent opacity-20 hover:opacity-75 transition-all duration-200"
           >
-            <ChevronRightIcon class="" />
+            <ChevronRightIcon />
+            <div class="absolute top-0 right-0 translate-x-[80%] z-99">
+              <ul class="menu menu-sm bg-base-200 rounded-box w-56">
+                <li><a>Small 1</a></li>
+                <li><a>Small 2</a></li>
+              </ul>
+            </div>
           </div>
         </div>
       </li>
@@ -132,10 +142,24 @@ const store = useNavDrawerStore()
   background-color: color-mix(in oklab, var(--color-base-content) 10%, var(--color-base-100));
 }
 
-.menu {
+#sidenav > .menu {
   li {
     .btn {
       opacity: 0;
+
+      &.menu-toggle-icon {
+        ul.menu {
+          opacity: 0;
+        }
+
+        &:hover {
+          ul.menu {
+            opacity: 1;
+            // right: 0;
+            // transition: right 0.2s ease-in-out;
+          }
+        }
+      }
     }
 
     &:hover {

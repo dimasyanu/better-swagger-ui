@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getColorForMethod as getBgColorForMethod } from '@/constants/colors.enum'
+import { getColorForMethod as getBgColorForMethod, MethodColor } from '@/constants/colors.enum'
 import NavigationDrawer from '@/components/NavigationDrawer.vue'
 import TopBar from '@/components/TopBar.vue'
 import EndpointContent from './partials/EndpointContent.vue'
@@ -55,10 +55,10 @@ watch(currentEndpointIndex, (index) => {
   <div class="flex flex-row w-full h-full overflow-y-auto bg-base-200">
     <NavigationDrawer />
 
-    <div class="flex flex-col flex-grow">
+    <div class="flex flex-col flex-grow relative z-1">
       <TopBar />
 
-      <main ref="main" class="flex-grow py-5 h-full overflow-y-auto">
+      <main ref="main" class="flex-grow py-5 h-full overflow-y-auto relative z-0">
         <div class="container flex flex-col gap-2 m-auto">
           <div
             v-for="(endpoint, i) in globalStore.currentEndpoints"
@@ -69,14 +69,14 @@ watch(currentEndpointIndex, (index) => {
             <input type="radio" name="my-accordion-2" :checked="currentEndpointIndex == i" />
             <div class="collapse-title font-semibold flex flex-row items-center gap-2">
               <div
-                class="badge uppercase"
+                class="badge uppercase min-w-[74px]"
                 :style="{
                   color:
                     'var(' +
-                    getBgColorForMethod(endpoint.method, globalStore.isDarkMode) +
+                    MethodColor[endpoint.method as string] +
                     '-content)',
                   backgroundColor:
-                    'var(' + getBgColorForMethod(endpoint.method, globalStore.isDarkMode) + ')',
+                    'var(' + MethodColor[endpoint.method as string] + ')',
                 }"
               >
                 {{ endpoint.method }}
@@ -84,8 +84,7 @@ watch(currentEndpointIndex, (index) => {
               <span>{{ endpoint.path }}</span>
             </div>
             <div class="collapse-content text-sm">
-              Click the "Sign Up" button in the top right corner and follow the registration
-              process.
+              <EndpointContent :endpoint="endpoint" />
             </div>
           </div>
           <!--

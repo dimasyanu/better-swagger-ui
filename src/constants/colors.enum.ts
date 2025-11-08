@@ -8,6 +8,14 @@ enum MethodColorLightMode {
   DELETE = '--color-error',
 }
 
+export const MethodColor: { [key: string]: string } = {
+  [ApiMethod.GET]: MethodColorLightMode.GET,
+  [ApiMethod.POST]: MethodColorLightMode.POST,
+  [ApiMethod.PATCH]: MethodColorLightMode.PATCH,
+  [ApiMethod.PUT]: MethodColorLightMode.PUT,
+  [ApiMethod.DELETE]: MethodColorLightMode.DELETE,
+}
+
 enum MethodColorDarkMode {
   GET = 'blue',
   POST = 'green',
