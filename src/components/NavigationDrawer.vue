@@ -4,9 +4,37 @@ import { isNullOrEmpty } from '@/helpers/helper'
 import { useGlobalStore } from '@/stores/global.store'
 import { useNavDrawerStore } from '@/stores/nav-drawer.store'
 import ChevronRightIcon from './icons/ChevronRightIcon.vue'
+import { computed, ref, useTemplateRef } from 'vue'
+
+const subMenuId = '--submenu--'
 
 const globalStore = useGlobalStore()
 const store = useNavDrawerStore()
+
+const currentHoveredTags = ref<string[]>([])
+const subMenuPos = ref<{ x: number; y: number } | null>(null)
+
+const pushSubMenu = (i: string) => {
+  currentHoveredTags.value.push(i)
+
+  if (i === subMenuId) return
+  const menuItem = <HTMLElement>document.getElementById('menu-' + i)
+  if (!menuItem) return
+  const rect = menuItem.getBoundingClientRect()
+  subMenuPos.value = { x: rect.right, y: rect.top }
+  console.log('x:', subMenuPos.value.x, 'y:', subMenuPos.value.y)
+}
+const hideSubMenu = (i: string) => {
+  currentHoveredTags.value = currentHoveredTags.value.filter((x) => x !== i)
+  setTimeout(() => {
+    if (currentHoveredTags.value.length > 0) return
+    subMenuPos.value = null
+  }, 100)
+}
+
+const currentHoveredTag = computed<string | undefined>(() =>
+  currentHoveredTags.value.find((x) => x !== subMenuId)
+)
 </script>
 
 <template>
@@ -26,115 +54,52 @@ const store = useNavDrawerStore()
     </div>
 
     <ul
-      class="menu h-[88%] overflow-auto flex flex-column flex-nowrap bg-base-100 rounded-box w-64 px-4"
+      class="menu h-[88%] overflow-y-auto flex flex-column flex-nowrap bg-base-100 rounded-box w-64 px-4"
     >
       <li
         v-for="(tag, i) of store.filteredTags"
         :key="i"
+        :id="'menu-' + i"
         :class="{ active: globalStore.currentTag === tag }"
         @click="globalStore.setCurrentTag(tag)"
       >
         <div class="flex flex-row justify-between p-0">
           <a class="px-3">{{ tag }}</a>
           <div
-            class="menu-toggle-icon btn btn-sm relative px-2 rounded-l-none border-0 bg-transparent opacity-20 hover:opacity-75 transition-all duration-200"
+            class="menu-toggle-icon btn btn-sm px-2 rounded-l-none border-0 bg-transparent transition-all duration-200"
+            @mouseenter="pushSubMenu(tag)"
+            @mouseleave="hideSubMenu(tag)"
           >
             <ChevronRightIcon />
-            <div class="absolute top-0 right-0 translate-x-[80%] z-99">
-              <ul class="menu menu-sm bg-base-200 rounded-box w-56">
-                <li><a>Small 1</a></li>
-                <li><a>Small 2</a></li>
-              </ul>
-            </div>
           </div>
         </div>
       </li>
     </ul>
-  </div>
-  <!--  
-  <v-navigation-drawer>
-    <v-list class="pb-5">
-      <v-list-item class="pb-2">
-        <v-text-field
-          id="group-search-input"
-          :loading="false"
-          class="d-sm-inline-block w-100"
-          clear-icon="mdi-close"
-          append-inner-icon="mdi-magnify"
-          density="compact"
-          label="Search"
-          placeholder="Search"
-          variant="outlined"
-          hide-details
-          single-line
-          v-model="store.tagSearch"
-          clearable
-          @click:clear="store.clearSearch()"
-        ></v-text-field>
-      </v-list-item>
-
-      <v-divider></v-divider>
-
-      <v-list-item v-if="store.filteredTags.length < 1" class="text-grey text-center">
-        No endpoints
-      </v-list-item>
-
-      <v-list-item
-        link
-        v-for="(tag, i) of store.filteredTags"
-        :key="i"
-        :active="globalStore.currentTag === tag"
-        @click="globalStore.setCurrentTag(tag)"
-      >
-        {{ tag }}
-        <div
-          class="submenu-toggle inline-block absolute h-full t-0 r-0 px-3 d-flex align-center cursor-default"
-          :class="{ dark: globalStore.isDarkMode }"
+    <div
+      class="absolute z-999"
+      :class="{
+        'opacity-70': currentHoveredTags.length <= 0,
+        'opacity-100': currentHoveredTags.length > 0,
+      }"
+      :style="{
+        top: subMenuPos ? subMenuPos.y + 'px' : 'auto',
+        left: subMenuPos ? subMenuPos.x + 'px' : 'auto',
+      }"
+      @mouseenter="pushSubMenu(subMenuId)"
+      @mouseleave="hideSubMenu(subMenuId)"
+    >
+      <ul class="menu menu-sm bg-base-100 rounded-box w-56">
+        <li
+          v-for="(endpoint, j) in globalStore.apiData.find((x) => x.tag === currentHoveredTag)
+            ?.endpoints ?? []"
+          :key="j"
         >
-          <v-icon icon="mdi-chevron-right"></v-icon>
-          <v-menu
-            :open-on-focus="false"
-            activator="parent"
-            open-delay="50"
-            close-delay="50"
-            open-on-hover
-            submenu
-          >
-            <v-list class="py-0">
-              <v-list-item
-                link
-                v-for="(endpoint, j) in globalStore.apiData.find(x => x.tag === tag)!.endpoints"
-                :key="j"
-                :active="globalStore.currentEndpointIndex === j"
-                @click="globalStore.selectEndpoint(tag, j)"
-              >
-                <v-chip
-                  class="method mr-3 my-2 text-uppercase"
-                  label
-                  size="small"
-                  variant="flat"
-                  :color="getColorForMethod(endpoint.method, globalStore.isDarkMode)"
-                >
-                  {{ endpoint.method }}
-                </v-chip>
-                <v-list-item-title class="inline">
-                  {{ endpoint.path }}
-                </v-list-item-title>
-                <v-tooltip
-                  v-if="!isNullOrEmpty(endpoint.request.summary)"
-                  activator="parent"
-                  location="end"
-                >
-                  {{ endpoint.request.summary }}
-                </v-tooltip>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </div>
-      </v-list-item>
-    </v-list>
-  </v-navigation-drawer>
---></template>
+          <a>{{ endpoint }}</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</template>
 
 <style lang="scss" scoped>
 .menu li:hover btn,
@@ -145,12 +110,12 @@ const store = useNavDrawerStore()
 #sidenav > .menu {
   li {
     .btn {
-      opacity: 0;
+      // opacity: 0;
 
       &.menu-toggle-icon {
-        ul.menu {
-          opacity: 0;
-        }
+        // ul.menu {
+        // opacity: 0;
+        // }
 
         &:hover {
           ul.menu {
@@ -165,7 +130,7 @@ const store = useNavDrawerStore()
     &:hover {
       & > div {
         .btn {
-          opacity: 0.5;
+          // opacity: 0.5;
 
           &:hover {
             opacity: 0.75;
