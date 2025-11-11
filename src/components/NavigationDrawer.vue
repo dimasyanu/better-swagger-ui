@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { getColorForMethod } from '@/constants/colors.enum'
-import { isNullOrEmpty } from '@/helpers/helper'
+import { MethodColor } from '@/constants/colors.enum'
 import { useGlobalStore } from '@/stores/global.store'
 import { useNavDrawerStore } from '@/stores/nav-drawer.store'
 import ChevronRightIcon from './icons/ChevronRightIcon.vue'
@@ -14,7 +13,13 @@ const store = useNavDrawerStore()
 const currentHoveredTags = ref<string[]>([])
 const subMenuPos = ref<{ x: number; y: number } | null>(null)
 
+const currentHoveredTag = computed<string | undefined>(() => {
+  const list = currentHoveredTags.value.filter((x) => x !== subMenuId)
+  return list.length > 0 ? list[list.length - 1] : undefined
+})
+
 const pushSubMenu = (menu: string) => {
+  if (currentHoveredTags.value.includes(menu)) return
   currentHoveredTags.value.push(menu)
 
   if (menu === subMenuId) return
@@ -24,19 +29,17 @@ const pushSubMenu = (menu: string) => {
   subMenuPos.value = { x: rect.right, y: rect.top }
 }
 const hideSubMenu = (menu: string) => {
-  if (menu !== subMenuId) return
-  // currentHoveredTags.value = currentHoveredTags.value.filter((x) => x !== menu)
+  if (!currentHoveredTags.value.includes(subMenuId))
+    currentHoveredTags.value = currentHoveredTags.value.filter((x) => x !== menu)
+
   setTimeout(() => {
-    if (currentHoveredTags.value.length > 0) return
+    if (currentHoveredTags.value.includes(subMenuId) && menu !== subMenuId) return
+    if (currentHoveredTag.value) return
+    // if (currentHoveredTags.value.length > 0) return
     currentHoveredTags.value = []
     subMenuPos.value = null
   }, 100)
 }
-
-const currentHoveredTag = computed<string | undefined>(() => {
-  const list = currentHoveredTags.value.filter((x) => x !== subMenuId)
-  return list.length > 0 ? list[list.length - 1] : undefined
-})
 </script>
 
 <template>
@@ -90,13 +93,30 @@ const currentHoveredTag = computed<string | undefined>(() => {
       @mouseenter="pushSubMenu(subMenuId)"
       @mouseleave="hideSubMenu(subMenuId)"
     >
-      <ul class="menu menu-sm bg-base-100 rounded-box w-56">
+      <ul class="menu menu-md bg-base-100 rounded-box">
         <li
           v-for="(endpoint, j) in globalStore.apiData.find((x) => x.tag === currentHoveredTag)
             ?.endpoints ?? []"
           :key="j"
         >
-          <a>{{ endpoint.path }}</a>
+          <div>
+            <div
+              class="badge badge-xs uppercase min-w-14 border-none"
+              :style="{
+                  color:
+                    'var(' +
+                    MethodColor[endpoint.method as string] +
+                    '-content)',
+                  backgroundColor:
+                    'var(' + MethodColor[endpoint.method as string] + ')',
+                }"
+            >
+              {{ endpoint.method }}
+            </div>
+            <span class="text-sm whitespace-nowrap">
+              {{ endpoint.path }}
+            </span>
+          </div>
         </li>
       </ul>
     </div>

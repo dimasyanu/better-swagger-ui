@@ -11,6 +11,9 @@ import PencilIcon from '../icons/PencilIcon.vue'
 import TrashIcon from '../icons/TrashIcon.vue'
 import ArrowLeftIcon from '../icons/ArrowLeftIcon.vue'
 
+const defaultSourceName = 'Default'
+const defaultSourceUrl = '/swagger.test.json'
+
 class SourceForm {
   public id: string = ''
   public name: string = ''
@@ -71,6 +74,10 @@ const editSource = function (id: string) {
   formState.id = id
   formState.name = source!.name
   formState.jsonUrl = source!.jsonUrl
+}
+
+const useDefaultSource = function () {
+  sourceStore.addSource(new ApiSourceItem(uuid(), defaultSourceName, defaultSourceUrl))
 }
 
 const cancelForm = function () {
@@ -201,125 +208,18 @@ watch(
           </div>
         </div>
 
-        <div class="mt-3 w-full flex justify-center">
+        <div class="mt-3 w-full flex flex-row justify-center items-center">
           <div class="btn btn-sm" @click="sourceMode = SourceMode.Create">Add a new source</div>
+          <template v-if="sourceStore.sources.length < 1">
+            <div class="divider divider-horizontal text-xs">OR</div>
+            <div class="btn btn-sm" @click="useDefaultSource">Use Default Source</div>
+          </template>
         </div>
       </div>
     </div>
 
     <label class="modal-backdrop" for="source-modal" @click="closeModal"></label>
   </dialog>
-  <!-- 
-  <v-dialog
-    v-model="sourceStore.active"
-    max-width="480"
-    @after-leave="sourceMode = SourceMode.Select"
-  >
-    <v-card>
-      <v-card-title class="px-5">
-        <v-icon v-if="isCreate || isEdit" @click="cancelForm()" title="Back" size="small">
-          mdi-arrow-left
-        </v-icon>
-      </v-card-title>
-      <v-divider></v-divider>
-
-      <v-card-text v-if="isCreate || isEdit">
-        <v-container>
-          <v-row>
-            <v-col>
-              <v-form>
-                <v-text-field
-                  v-model="formState.name"
-                  label="Name"
-                  variant="solo"
-                  density="comfortable"
-                  :error-messages="v$.name.$errors.map(e => e.$message as string)"
-                  required
-                  @blur="v$.name.$touch"
-                  @input="v$.name.$touch"
-                ></v-text-field>
-
-                <v-text-field
-                  v-model="formState.jsonUrl"
-                  label="JSON Url"
-                  variant="solo"
-                  density="comfortable"
-                  :error-messages="v$.jsonUrl.$errors.map(e => e.$message as string)"
-                  required
-                  @blur="v$.jsonUrl.$touch"
-                  @input="v$.jsonUrl.$touch"
-                ></v-text-field>
-              </v-form>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col class="text-center">
-              <v-btn variant="flat" size="small" color="grey" @click="cancelForm()">Cancel</v-btn>
-              <v-btn class="ml-2" variant="flat" size="small" color="success" @click="saveSource()">
-                Save
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-card-text>
-
-      <v-card-text v-else>
-        <v-list lines="one">
-          <v-list-item
-            v-for="(source, i) in sourceStore.sources"
-            :key="i"
-            density="compact"
-            class="py-0"
-          >
-            <v-btn-group class="d-flex" density="compact">
-              <v-btn
-                class="text-none text-left flex-grow-1"
-                size="small"
-                density="compact"
-                variant="outlined"
-                :active="source.id === sourceStore.currentId"
-                @click="sourceStore.changeCurrentSource(source.id)"
-              >
-                {{ source.name }}
-              </v-btn>
-              <v-btn
-                size="small"
-                density="compact"
-                color="danger"
-                variant="outlined"
-                @click="editSource(source.id)"
-              >
-                <v-icon>mdi-pencil</v-icon>
-              </v-btn>
-              <v-btn
-                size="small"
-                density="compact"
-                color="danger"
-                variant="outlined"
-                @click="sourceStore.removeSource(source.id)"
-              >
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
-            </v-btn-group>
-          </v-list-item>
-        </v-list>
-
-        <div class="d-flex justify-center pb-2 mt-2">
-          <v-btn variant="outlined" size="small" @click="sourceMode = SourceMode.Create"
-            >Add new source</v-btn
-          >
-        </div>
-      </v-card-text>
-
-      <v-divider></v-divider>
-
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn @click="sourceStore.closeSourceModal()">Close</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
- -->
 </template>
 
 <style lang="scss" scoped>

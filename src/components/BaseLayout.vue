@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getColorForMethod as getBgColorForMethod, MethodColor } from '@/constants/colors.enum'
+import { MethodColor } from '@/constants/colors.enum'
 import NavigationDrawer from '@/components/NavigationDrawer.vue'
 import TopBar from '@/components/TopBar.vue'
 import EndpointContent from './partials/EndpointContent.vue'
