@@ -32,7 +32,7 @@ export const useApiSourceStore = defineStore('sourceStore', {
       this.closeSourceModal()
 
       this.fetchFromSource()
-      useSnackbarStore().show('The source is changed to ' + this.currentSource)
+      useSnackbarStore().success('The source is changed to ' + this.currentSource)
     },
     addSource(item: ApiSourceItem) {
       this.sources.push(item)
@@ -58,7 +58,7 @@ export const useApiSourceStore = defineStore('sourceStore', {
       this.sources = this.sources.filter((x) => x.id !== id)
       this.saveToLocalStorage()
 
-      useSnackbarStore().show('Removed: ' + sourceName)
+      useSnackbarStore().warning('Removed: ' + sourceName)
     },
     openSourceModal() {
       this.active = true
@@ -75,7 +75,9 @@ export const useApiSourceStore = defineStore('sourceStore', {
       api
         .get<SwaggerRoot>(this.currentSourceUrl!)
         .then((res) => globalStore.storeData(res))
-        .catch((err) => useSnackbarStore().show('Unable to fetch from URL: ' + this.currentSourceUrl, 3000))
+        .catch((err) =>
+          useSnackbarStore().error('Unable to fetch from URL: ' + this.currentSourceUrl, 3000)
+        )
         .finally(() => {})
     },
     saveToLocalStorage() {

@@ -14,27 +14,29 @@ const store = useNavDrawerStore()
 const currentHoveredTags = ref<string[]>([])
 const subMenuPos = ref<{ x: number; y: number } | null>(null)
 
-const pushSubMenu = (i: string) => {
-  currentHoveredTags.value.push(i)
+const pushSubMenu = (menu: string) => {
+  currentHoveredTags.value.push(menu)
 
-  if (i === subMenuId) return
-  const menuItem = <HTMLElement>document.getElementById('menu-' + i)
+  if (menu === subMenuId) return
+  const menuItem = <HTMLElement>document.getElementById('menu-' + menu)
   if (!menuItem) return
   const rect = menuItem.getBoundingClientRect()
   subMenuPos.value = { x: rect.right, y: rect.top }
-  console.log('x:', subMenuPos.value.x, 'y:', subMenuPos.value.y)
 }
-const hideSubMenu = (i: string) => {
-  currentHoveredTags.value = currentHoveredTags.value.filter((x) => x !== i)
+const hideSubMenu = (menu: string) => {
+  if (menu !== subMenuId) return
+  // currentHoveredTags.value = currentHoveredTags.value.filter((x) => x !== menu)
   setTimeout(() => {
     if (currentHoveredTags.value.length > 0) return
+    currentHoveredTags.value = []
     subMenuPos.value = null
   }, 100)
 }
 
-const currentHoveredTag = computed<string | undefined>(() =>
-  currentHoveredTags.value.find((x) => x !== subMenuId)
-)
+const currentHoveredTag = computed<string | undefined>(() => {
+  const list = currentHoveredTags.value.filter((x) => x !== subMenuId)
+  return list.length > 0 ? list[list.length - 1] : undefined
+})
 </script>
 
 <template>
@@ -59,7 +61,7 @@ const currentHoveredTag = computed<string | undefined>(() =>
       <li
         v-for="(tag, i) of store.filteredTags"
         :key="i"
-        :id="'menu-' + i"
+        :id="'menu-' + tag"
         :class="{ active: globalStore.currentTag === tag }"
         @click="globalStore.setCurrentTag(tag)"
       >
@@ -94,7 +96,7 @@ const currentHoveredTag = computed<string | undefined>(() =>
             ?.endpoints ?? []"
           :key="j"
         >
-          <a>{{ endpoint }}</a>
+          <a>{{ endpoint.path }}</a>
         </li>
       </ul>
     </div>
