@@ -1,17 +1,22 @@
 <script setup lang="ts">
 import GlobalSearch from '@/components/partials/GlobalSearch.vue'
 import SourceModal from './partials/SourceModal.vue'
+import SchemaModal from './partials/SchemaModal.vue'
 import { useGlobalStore } from '@/stores/global.store'
 import { useApiSourceStore } from '@/stores/api-source.store'
+import { useNavDrawerStore } from '@/stores/nav-drawer.store'
 import LinkIcon from './icons/LinkIcon.vue'
 import LockIcon from './icons/LockIcon.vue'
 import SwaggerIcon from './icons/SwaggerIcon.vue'
 import MenuIcon from './icons/MenuIcon.vue'
-import { useNavDrawerStore } from '@/stores/nav-drawer.store'
+import BookIcon from './icons/BookIcon.vue'
+import { ref } from 'vue'
 
 const globalStore = useGlobalStore()
 const sourceStore = useApiSourceStore()
 const navBarStore = useNavDrawerStore()
+
+const isSchemaModalOpen = ref(false)
 
 const toggleTheme = () => {
   globalStore.toggleThemeMode()
@@ -58,16 +63,23 @@ const toggleTheme = () => {
         </div>
       </div>
 
-      <div class="flex flex-row items-center gap-16 px-4">
+      <div class="flex flex-row items-center px-4">
+        <!-- Schema -->
+        <div class="tooltip tooltip-bottom" data-tip="API Schema">
+          <div class="btn btn-ghost px-2" @click="isSchemaModalOpen = true">
+            <BookIcon />
+          </div>
+        </div>
+
         <!-- Global search -->
-        <div>
+        <div class="ml-4">
           <GlobalSearch />
         </div>
 
         <!-- Theme mode -->
         <div
           id="theme-toggle"
-          class="theme-toggle cursor-pointer"
+          class="theme-toggle cursor-pointer ml-16"
           title="Toggles light & dark"
           aria-label="auto"
           aria-live="polite"
@@ -95,4 +107,5 @@ const toggleTheme = () => {
     </div>
   </div>
   <SourceModal />
+  <SchemaModal v-model="isSchemaModalOpen" />
 </template>

@@ -89,6 +89,7 @@ const cancelForm = function () {
 const closeModal = function () {
   clearForm()
   v$.value.$reset()
+
   const modal = document.querySelector('#source-modal') as HTMLDialogElement
   if (modal == null || !modal.open) return
   modal.close()

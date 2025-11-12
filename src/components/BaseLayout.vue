@@ -4,11 +4,10 @@ import NavigationDrawer from '@/components/NavigationDrawer.vue'
 import TopBar from '@/components/TopBar.vue'
 import EndpointContent from './partials/EndpointContent.vue'
 import { useGlobalStore } from '@/stores/global.store'
-import { useTemplateRef, watch } from 'vue'
+import { watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useSnackbarStore } from '@/stores/snackbar.store'
 import type { ApiEndpoint } from '@/models/api-data.model'
-import { useScroll } from '@vueuse/core'
 import CopyIcon from './icons/CopyIcon.vue'
 import TimeIcon from './icons/TimeIcon.vue'
 
@@ -26,9 +25,6 @@ const getHistories = (e: MouseEvent, endpoint: ApiEndpoint) => {
   e.stopPropagation()
 }
 
-const main = useTemplateRef<HTMLElement>('main')
-const { x, y } = useScroll(main)
-
 const selectEndpoint = (index: number) => {
   if (index === currentEndpointIndex.value) {
     currentEndpointIndex.value = null
@@ -38,12 +34,12 @@ const selectEndpoint = (index: number) => {
 }
 
 watch(currentEndpointIndex, (index) => {
-  setTimeout(() => {
-    const target = useTemplateRef<HTMLElement | null>('panel-' + index)
-    if (!target.value) return
-    target.value!.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    // goTo('#panel-' + index, { offset: -150 })
-  }, 200)
+  // setTimeout(() => {
+  const target = <HTMLElement | null>document.getElementById('panel-' + index)
+  if (!target) return
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  // goTo('#panel-' + index, { offset: -150 })
+  // }, 200)
 })
 </script>
 
@@ -59,7 +55,7 @@ watch(currentEndpointIndex, (index) => {
           <div
             v-for="(endpoint, i) in globalStore.currentEndpoints"
             :key="i"
-            :ref="'panel-' + i"
+            :id="'panel-' + i"
             class="collapse collapse-arrow bg-base-100 border border-base-300"
           >
             <input

@@ -97,6 +97,9 @@ export const useGlobalStore = defineStore('global', {
       this.currentEndpointIndex = endpointIndex
     },
     storeData(root: SwaggerRoot) {
+      this.apiData = []
+      this.schemas = []
+
       const registerPath = (path: string, method: ApiMethodType, reqModel: IRequestModel): void => {
         for (let tag of reqModel.tags) {
           let currentApiData = this.apiData.find((x) => x.tag === tag)
