@@ -3,8 +3,7 @@ import { MethodColor } from '@/constants/colors.enum'
 import { useGlobalStore } from '@/stores/global.store'
 import { useNavDrawerStore } from '@/stores/nav-drawer.store'
 import ChevronRightIcon from './icons/ChevronRightIcon.vue'
-import { computed, ref, useTemplateRef } from 'vue'
-import SearchIcon from './icons/SearchIcon.vue'
+import { computed, ref } from 'vue'
 
 const subMenuId = '--submenu--'
 
@@ -69,7 +68,7 @@ const hideSubMenu = (menu: string) => {
     :class="{ hidden: !globalStore.isNavDrawerOpen }"
   >
     <div class="px-4">
-      <label class="input" for="menu-filter">
+      <label class="input input-sm" for="menu-filter">
         <input
           id="menu-filter"
           type="search"
@@ -136,7 +135,11 @@ const hideSubMenu = (menu: string) => {
         class="menu menu-md bg-base-100 rounded-box"
         :class="{ hidden: hoveredSubMenuItems.length < 1 }"
       >
-        <li v-for="(endpoint, j) in hoveredSubMenuItems" :key="j">
+        <li
+          v-for="(endpoint, j) in hoveredSubMenuItems"
+          :key="j"
+          :class="{ active: globalStore.currentEndpointIndex === j }"
+        >
           <div @click="globalStore.selectEndpoint(currentHoveredTag ?? '', j)">
             <div
               class="badge badge-xs uppercase min-w-14 border-none"
@@ -170,18 +173,18 @@ const hideSubMenu = (menu: string) => {
 #sidenav > .menu {
   li {
     .btn {
-      // opacity: 0;
+      opacity: 0;
 
       &.menu-toggle-icon {
-        // ul.menu {
-        // opacity: 0;
-        // }
+        ul.menu {
+          opacity: 0;
+        }
 
         &:hover {
           ul.menu {
             opacity: 1;
-            // right: 0;
-            // transition: right 0.2s ease-in-out;
+            right: 0;
+            transition: right 0.2s ease-in-out;
           }
         }
       }
@@ -190,7 +193,7 @@ const hideSubMenu = (menu: string) => {
     &:hover {
       & > div {
         .btn {
-          // opacity: 0.5;
+          opacity: 0.5;
 
           &:hover {
             opacity: 0.75;

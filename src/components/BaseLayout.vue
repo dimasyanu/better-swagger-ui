@@ -34,12 +34,9 @@ const selectEndpoint = (index: number) => {
 }
 
 watch(currentEndpointIndex, (index) => {
-  // setTimeout(() => {
   const target = <HTMLElement | null>document.getElementById('panel-' + index)
   if (!target) return
   target.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  // goTo('#panel-' + index, { offset: -150 })
-  // }, 200)
 })
 </script>
 

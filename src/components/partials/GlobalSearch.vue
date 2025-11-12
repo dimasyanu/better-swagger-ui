@@ -1,53 +1,54 @@
 <script setup lang="ts">
-import { getColorForMethod } from '@/constants/colors.enum'
+import type { ApiMethodType } from '@/constants/api-method.enum'
+import { MethodColor } from '@/constants/colors.enum'
 import { isNullOrEmpty } from '@/helpers/helper'
 import type { ApiEndpoint } from '@/models/api-data.model'
 import { useGlobalStore } from '@/stores/global.store'
 import { computed, onMounted } from 'vue'
 import { type Ref, ref } from 'vue'
 
+type SearchItem = {
+  data: ApiEndpoint
+  html: string
+}
+
+const searchMinChars = 2
+const searchPlaceholder = 'Search endpoints ..'
+
 const globalStore = useGlobalStore()
 const globalSearchInput: Ref<HTMLInputElement | null> = ref(null)
 const items = computed(() => globalStore.apiData.flatMap((x) => x.endpoints))
-const search: Ref<string | undefined> = ref(undefined)
-const searchFinal: Ref<string | undefined> = ref(undefined)
-const searchMinChars = 2
-const searchPlaceholder = 'Search all (Min: ' + searchMinChars + ' letters)'
+
+const keyword = ref('')
+
+const filteredEndpoints = computed(() => {
+  if (isNullOrEmpty(keyword.value) || keyword.value.length < searchMinChars) return []
+
+  let _keyword = keyword.value
+  let endpoints = items.value
+
+  let regex: RegExp
+  try {
+    regex = new RegExp(_keyword, 'i')
+  } catch {
+    const escaped = _keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    regex = new RegExp(escaped, 'i')
+  }
+
+  endpoints = endpoints.filter((x) => regex.test(x.path))
+  return endpoints.map<SearchItem>((x) => ({
+    data: x,
+    html: x.path.replace(regex, (match) => `<span class="highlight">${match}</span>`),
+  }))
+})
+
 const searchMenuState = ref(false)
-const searchFilter: any = (value: string, query: string | null, item?: Ref<ApiEndpoint | null>) => {
-  if (
-    item === null ||
-    item === undefined ||
-    isNullOrEmpty(query) ||
-    (query?.length ?? 0) < searchMinChars
-  )
-    return false
-  return item.value!.path.toLowerCase().includes(query!)
-}
-
-const searchItems = computed(() =>
-  items.value.filter((x) => x.path.toLocaleLowerCase().includes(search.value!.toLowerCase()))
-)
-
-// const searchItems = computed((): ApiEndpoint[] => {
-//   if ((search.value?.length ?? 0) < searchMinChars) return []
-//   if ((searchFinal.value?.length ?? 0) > searchMinChars) {
-//     items.value.filter((x) => x.path.toLocaleLowerCase().includes(searchFinal.value!.toLowerCase()))
-//   }
-//   return items.value
-// })
 
 const selected = (e: ApiEndpoint) => {
   var tag = e.request.tags[0]
   if (!tag) tag = 'default'
   globalStore.selectEndpointByPath(tag, e.path)
   searchMenuState.value = false
-  searchFinal.value = search.value
-}
-
-const searchCleared = () => {
-  search.value = undefined
-  searchFinal.value = undefined
 }
 
 const onKeyDown = (event: KeyboardEvent) => {
@@ -75,15 +76,49 @@ onMounted(() => {
         <path d="m21 21-4.3-4.3"></path>
       </g>
     </svg>
-    <input type="search" class="grow" placeholder="Search" />
-    <kbd class="kbd kbd-sm">⌘</kbd>
-    <kbd class="kbd kbd-sm">K</kbd>
+    <input
+      ref="globalSearchInput"
+      type="search"
+      class="grow"
+      :placeholder="searchPlaceholder"
+      v-model="keyword"
+    />
+    <span v-if="keyword.length < 1" class="min-w-[70px] text-end">
+      <kbd class="kbd kbd-sm">Ctrl</kbd>
+      <kbd class="kbd kbd-sm ml-1">/</kbd>
+    </span>
+    <span v-if="keyword.length > 0" class="min-w-[70px] text-end">
+      <span class="px-1 py-2 cursor-pointer" @click="keyword = ''">✕</span>
+    </span>
+    <div
+      v-if="keyword.length > 0 && keyword.length < searchMinChars"
+      class="tooltip tooltip-bottom tooltip-open absolute left-[50%] top-8"
+      :data-tip="searchMinChars - keyword.length + ' more character(s) to search'"
+    ></div>
+    <ul
+      class="menu dropdown-content absolute right-0 top-[calc(0.5rem+100%)] min-w-[100%] max-h-[80vh] flex-nowrap overflow-auto bg-base-300 rounded-box z-1 p-2 shadow-sm"
+      :class="{ hidden: filteredEndpoints.length < 1 }"
+    >
+      <li v-for="endpoint in filteredEndpoints" @click="selected(endpoint.data)">
+        <div>
+          <div
+            class="badge badge-xs uppercase min-w-14 border-none"
+            :style="{
+                  color:
+                    'var(' +
+                    MethodColor[endpoint.data.method as string] +
+                    '-content)',
+                  backgroundColor:
+                    'var(' + MethodColor[endpoint.data.method as string] + ')',
+                }"
+          >
+            {{ endpoint.data.method }}
+          </div>
+          <span class="whitespace-nowrap" v-html="endpoint.html"></span>
+        </div>
+      </li>
+    </ul>
   </label>
-
-  <ul class="menu dropdown-content absolute bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm hidden">
-    <li><a>Item 1</a></li>
-    <li><a>Item 2</a></li>
-  </ul>
 
   <!--
   <v-autocomplete
