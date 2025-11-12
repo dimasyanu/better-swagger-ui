@@ -4,40 +4,60 @@ import { useGlobalStore } from '@/stores/global.store'
 import { useNavDrawerStore } from '@/stores/nav-drawer.store'
 import ChevronRightIcon from './icons/ChevronRightIcon.vue'
 import { computed, ref, useTemplateRef } from 'vue'
+import SearchIcon from './icons/SearchIcon.vue'
 
 const subMenuId = '--submenu--'
 
 const globalStore = useGlobalStore()
 const store = useNavDrawerStore()
 
-const currentHoveredTags = ref<string[]>([])
+const currentHoveredKeys = ref<string[]>([])
 const subMenuPos = ref<{ x: number; y: number } | null>(null)
 
 const currentHoveredTag = computed<string | undefined>(() => {
-  const list = currentHoveredTags.value.filter((x) => x !== subMenuId)
+  const list = currentHoveredKeys.value.filter((x) => x !== subMenuId)
   return list.length > 0 ? list[list.length - 1] : undefined
+})
+const hoveredSubMenuItems = computed(() => {
+  const tag = currentHoveredTag.value
+  if (!tag) return []
+  return globalStore.apiData.find((x) => x.tag === tag)?.endpoints ?? []
 })
 
 const pushSubMenu = (menu: string) => {
-  if (currentHoveredTags.value.includes(menu)) return
-  currentHoveredTags.value.push(menu)
+  currentHoveredKeys.value.push(menu)
 
   if (menu === subMenuId) return
   const menuItem = <HTMLElement>document.getElementById('menu-' + menu)
+
   if (!menuItem) return
   const rect = menuItem.getBoundingClientRect()
+  const windowHeight = window.innerHeight || document.documentElement.clientHeight
+
+  // submenu too tall to fit in viewport, position at top
+  if (16 + 32 * hoveredSubMenuItems.value.length > windowHeight) {
+    subMenuPos.value = { x: rect.right, y: 8 }
+    return
+  }
+
+  // adjust y position to fit in viewport
+  if (rect.top + 16 + 32 * hoveredSubMenuItems.value.length > windowHeight) {
+    subMenuPos.value = {
+      x: rect.right,
+      y: windowHeight - 32 * hoveredSubMenuItems.value.length - 8,
+    }
+    return
+  }
   subMenuPos.value = { x: rect.right, y: rect.top }
 }
-const hideSubMenu = (menu: string) => {
-  if (!currentHoveredTags.value.includes(subMenuId))
-    currentHoveredTags.value = currentHoveredTags.value.filter((x) => x !== menu)
 
+const hideSubMenu = (menu: string) => {
   setTimeout(() => {
-    if (currentHoveredTags.value.includes(subMenuId) && menu !== subMenuId) return
-    if (currentHoveredTag.value) return
-    // if (currentHoveredTags.value.length > 0) return
-    currentHoveredTags.value = []
-    subMenuPos.value = null
+    const keys = currentHoveredKeys.value
+    if (keys[keys.length - 1] === menu) {
+      currentHoveredKeys.value = []
+      subMenuPos.value = null
+    }
   }, 100)
 }
 </script>
@@ -45,11 +65,28 @@ const hideSubMenu = (menu: string) => {
 <template>
   <div
     id="sidenav"
-    class="bg-base-100 py-3 shadow-md h-full relative z-2"
+    class="bg-base-300 py-3 shadow-md h-full relative z-2"
     :class="{ hidden: !globalStore.isNavDrawerOpen }"
   >
     <div class="px-4">
-      <input type="text" placeholder="Filter.." class="input" />
+      <label class="input" for="menu-filter">
+        <input
+          id="menu-filter"
+          type="search"
+          placeholder="Filter.."
+          class="grow"
+          v-model="store.tagSearch"
+        />
+        <div class="tooltip tooltip-bottom" data-tip="Clear">
+          <span
+            v-if="store.tagSearch !== ''"
+            class="px-1 py-2 cursor-pointer"
+            @click="store.tagSearch = ''"
+          >
+            ✕
+          </span>
+        </div>
+      </label>
     </div>
 
     <div class="divider my-2"></div>
@@ -59,32 +96,34 @@ const hideSubMenu = (menu: string) => {
     </div>
 
     <ul
-      class="menu h-[88%] overflow-y-auto flex flex-column flex-nowrap bg-base-100 rounded-box w-64 px-4"
+      class="menu h-[88%] overflow-y-auto flex flex-column flex-nowrap bg-base-300 rounded-box w-64 px-4"
     >
       <li
         v-for="(tag, i) of store.filteredTags"
         :key="i"
-        :id="'menu-' + tag"
-        :class="{ active: globalStore.currentTag === tag }"
-        @click="globalStore.setCurrentTag(tag)"
+        :id="'menu-' + tag.key"
+        :class="{ active: globalStore.currentTag === tag.key }"
+        @click="globalStore.setCurrentTag(tag.key)"
       >
         <div class="flex flex-row justify-between p-0">
-          <a class="px-3">{{ tag }}</a>
+          <a class="px-3" v-html="tag.html"></a>
           <div
             class="menu-toggle-icon btn btn-sm px-2 rounded-l-none border-0 bg-transparent transition-all duration-200"
-            @mouseenter="pushSubMenu(tag)"
-            @mouseleave="hideSubMenu(tag)"
+            @mouseenter="pushSubMenu(tag.key)"
+            @mouseleave="hideSubMenu(tag.key)"
           >
             <ChevronRightIcon />
           </div>
         </div>
       </li>
     </ul>
+
+    <!-- Submenu -->
     <div
-      class="absolute z-999"
+      class="absolute z-999 overflow-y-auto max-h-[100vh]"
       :class="{
-        'opacity-70': currentHoveredTags.length <= 0,
-        'opacity-100': currentHoveredTags.length > 0,
+        'opacity-70': currentHoveredKeys.length <= 0,
+        'opacity-100': currentHoveredKeys.length > 0,
       }"
       :style="{
         top: subMenuPos ? subMenuPos.y + 'px' : 'auto',
@@ -93,13 +132,12 @@ const hideSubMenu = (menu: string) => {
       @mouseenter="pushSubMenu(subMenuId)"
       @mouseleave="hideSubMenu(subMenuId)"
     >
-      <ul class="menu menu-md bg-base-100 rounded-box">
-        <li
-          v-for="(endpoint, j) in globalStore.apiData.find((x) => x.tag === currentHoveredTag)
-            ?.endpoints ?? []"
-          :key="j"
-        >
-          <div>
+      <ul
+        class="menu menu-md bg-base-100 rounded-box"
+        :class="{ hidden: hoveredSubMenuItems.length < 1 }"
+      >
+        <li v-for="(endpoint, j) in hoveredSubMenuItems" :key="j">
+          <div @click="globalStore.selectEndpoint(currentHoveredTag ?? '', j)">
             <div
               class="badge badge-xs uppercase min-w-14 border-none"
               :style="{
@@ -163,12 +201,12 @@ const hideSubMenu = (menu: string) => {
 
     &.active {
       & > div {
-        color: var(--menu-active-fg);
-        background-color: var(--menu-active-bg);
+        color: var(--color-primary-content);
+        background-color: var(--color-primary);
 
         .btn {
-          color: var(--menu-active-fg);
-          background-color: var(--menu-active-bg);
+          color: var(--color-primary-content);
+          background-color: var(--color-primary);
         }
       }
     }
