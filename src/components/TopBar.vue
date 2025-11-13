@@ -66,7 +66,7 @@ const toggleTheme = () => {
       <div class="flex flex-row items-center px-4">
         <!-- Schema -->
         <div class="tooltip tooltip-bottom" data-tip="API Schema">
-          <div class="btn btn-ghost px-2" @click="isSchemaModalOpen = true">
+          <div class="btn btn-ghost px-2" @click="isSchemaModalOpen = !isSchemaModalOpen">
             <BookIcon />
           </div>
         </div>
