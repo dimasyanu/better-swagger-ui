@@ -1,0 +1,24 @@
+import { fileURLToPath, URL } from 'node:url'
+import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import vueDevTools from 'vite-plugin-vue-devtools'
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  server: {
+    port: 3000,
+  },
+  plugins: [
+    vue(),
+    vueDevTools(),
+    // vuetify()
+    tailwindcss(),
+  ],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
+  assetsInclude: ['./src/resources/swagger.test.json'],
+})
